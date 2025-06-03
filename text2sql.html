@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PostGIS Text2SQL AI 모델 개발 프로젝트</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #f8fafc;
+        color: #1e293b;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      .header {
+        text-align: center;
+        padding: 60px 0;
+        background: linear-gradient(135deg, #334155 0%, #475569 100%);
+        color: white;
+        margin-bottom: 40px;
+        border-radius: 8px;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        letter-spacing: -0.025em;
+      }
+
+      .header .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        font-weight: 300;
+      }
+
+      .section {
+        background: white;
+        margin: 30px 0;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+      }
+
+      .section h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e2e8f0;
+      }
+
+      .section h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #334155;
+        margin: 24px 0 12px 0;
+      }
+
+      .section h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #475569;
+        margin: 16px 0 8px 0;
+      }
+
+      .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin: 20px 0;
+      }
+
+      .three-column {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .metric-box {
+        background: #f1f5f9;
+        padding: 20px;
+        border-radius: 6px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+      }
+
+      .metric-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #334155;
+        margin-bottom: 8px;
+      }
+
+      .metric-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 500;
+      }
+
+      .budget-item {
+        background: #fafafa;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 20px;
+        margin: 10px 0;
+      }
+
+      .budget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .budget-amount {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #334155;
+      }
+
+      .budget-percentage {
+        background: #334155;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .tech-stack {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+
+      .tech-item {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: center;
+        font-weight: 500;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 30px;
+      }
+
+      .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e2e8f0;
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+        padding-left: 30px;
+      }
+
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -38px;
+        top: 6px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #334155;
+      }
+
+      .timeline-content {
+        background: #f8fafc;
+        padding: 20px;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .timeline-week {
+        font-size: 0.8rem;
+        color: #64748b;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        border: 1px solid #e2e8f0;
+        padding: 12px;
+        text-align: left;
+      }
+
+      .comparison-table th {
+        background: #f8fafc;
+        font-weight: 600;
+        color: #334155;
+      }
+
+      .comparison-table tr:nth-child(even) {
+        background: #fafafa;
+      }
+
+      .highlight-box {
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        border-radius: 6px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+
+      .highlight-box h4 {
+        color: #92400e;
+        margin-bottom: 12px;
+      }
+
+      .code-block {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 6px;
+        margin: 15px 0;
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+      }
+
+      .risk-item {
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-radius: 6px;
+        padding: 15px;
+        margin: 10px 0;
+      }
+
+      .risk-item h5 {
+        color: #dc2626;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .benefit-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .benefit-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+        position: relative;
+        padding-left: 25px;
+      }
+
+      .benefit-list li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #059669;
+        font-weight: bold;
+      }
+
+      .cta-section {
+        background: #334155;
+        color: white;
+        padding: 40px;
+        border-radius: 8px;
+        text-align: center;
+        margin: 40px 0;
+      }
+
+      .cta-button {
+        background: #f59e0b;
+        color: #1e293b;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 0 10px;
+        transition: background-color 0.2s;
+      }
+
+      .cta-button:hover {
+        background: #d97706;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>PostGIS Text2SQL AI 모델 개발 프로젝트</h1>
+        <div class="subtitle">
+          자연어를 PostgreSQL/PostGIS 쿼리로 변환하는 특화 AI 모델 개발
+        </div>
+      </div>
+
+      <!-- Executive Summary -->
+      <div class="section">
+        <h2>📋 Executive Summary</h2>
+        <div class="highlight-box">
+          <h4>핵심 제안</h4>
+          <p>
+            500만원 예산으로 4개월 내에 GPT-4 대비 30% 향상된 PostGIS 특화
+            Text2SQL AI 모델 개발
+          </p>
+        </div>
+
+        <div class="three-column">
+          <div class="metric-box">
+            <div class="metric-number">85%+</div>
+            <div class="metric-label">목표 정확도</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-number">4개월</div>
+            <div class="metric-label">개발 기간</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-number">500만원</div>
+            <div class="metric-label">총 예산</div>
+          </div>
+        </div>
+
+        <h3>시장 기회</h3>
+        <ul class="benefit-list">
+          <li>글로벌 GIS 시장 규모: 연 25% 성장률 (2024년 기준 $180억)</li>
+          <li>국내 공간정보 산업: 정부 디지털뉴딜 정책으로 급성장</li>
+          <li>No-code/Low-code 도구 수요 증가</li>
+          <li>기존 Text2SQL 솔루션의 공간데이터 처리 한계</li>
+        </ul>
+      </div>
+
+      <!-- Technical Problem Analysis -->
+      <div class="section">
+        <h2>🔍 기술적 문제 분석</h2>
+
+        <h3>현재 시장 솔루션의 한계</h3>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>솔루션</th>
+              <th>PostGIS 정확도</th>
+              <th>주요 한계점</th>
+              <th>비용 구조</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GPT-4</td>
+              <td>~60%</td>
+              <td>공간함수 미숙, 복잡한 지오메트리 처리 부족</td>
+              <td>API 호출당 과금</td>
+            </tr>
+            <tr>
+              <td>Claude 3.5</td>
+              <td>~55%</td>
+              <td>PostGIS 특화 훈련 부족</td>
+              <td>API 호출당 과금</td>
+            </tr>
+            <tr>
+              <td>기존 Text2SQL 도구들</td>
+              <td>~30%</td>
+              <td>일반 SQL만 지원, 공간 연산 미지원</td>
+              <td>라이센스 또는 SaaS</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>PostGIS 특화가 필요한 이유</h3>
+        <div class="code-block">
+          -- 일반 SQL vs PostGIS 복잡도 비교 -- 일반 SQL: 단순 조건 SELECT *
+          FROM restaurants WHERE city = 'Seoul'; -- PostGIS: 복잡한 공간 연산
+          SELECT r.name, r.address, ST_Distance(r.geom,
+          ST_GeomFromText('POINT(126.9780 37.5665)', 4326)) as distance FROM
+          restaurants r WHERE ST_DWithin(r.geom, ST_GeomFromText('POINT(126.9780
+          37.5665)', 4326), 1000) AND ST_Intersects(r.geom, (SELECT geom FROM
+          districts WHERE name = '강남구')) ORDER BY distance;
+        </div>
+
+        <ul class="benefit-list">
+          <li>50+ PostGIS 전용 함수 (ST_Distance, ST_Within, ST_Buffer 등)</li>
+          <li>복잡한 공간 관계 연산 (교차, 포함, 근접성 등)</li>
+          <li>다양한 좌표계 변환 (EPSG:4326, 5179 등)</li>
+          <li>지오메트리 타입별 특화 처리 (Point, LineString, Polygon)</li>
+          <li>공간 인덱스 최적화 쿼리 생성</li>
+        </ul>
+      </div>
+
+      <!-- Technical Solution -->
+      <div class="section">
+        <h2>⚙️ 기술적 솔루션</h2>
+
+        <h3>1. 베이스 모델 선택 전략</h3>
+        <div class="two-column">
+          <div>
+            <h4>후보 모델 분석</h4>
+            <ul>
+              <li>
+                <strong>CodeLlama-7B-Instruct</strong>: SQL 생성 우수, 지시사항
+                이해 뛰어남
+              </li>
+              <li>
+                <strong>Mistral-7B-Instruct</strong>: 추론 능력 우수, 다국어
+                지원
+              </li>
+              <li>
+                <strong>DeepSeek-Coder-7B</strong>: 코드 생성 특화, 최신
+                아키텍처
+              </li>
+              <li><strong>Llama2-13B</strong>: 더 큰 모델, 높은 성능</li>
+            </ul>
+          </div>
+          <div>
+            <h4>선택 기준</h4>
+            <ul>
+              <li>SQL 생성 기본 성능</li>
+              <li>Instruction Following 능력</li>
+              <li>한국어 처리 성능</li>
+              <li>파인튜닝 안정성</li>
+              <li>메모리 효율성 (RTX 4090 24GB 제한)</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>2. 파인튜닝 기법</h3>
+        <h4>LoRA (Low-Rank Adaptation) 사용</h4>
+        <div class="code-block">
+          # LoRA 설정 예시 from peft import LoraConfig, get_peft_model
+          lora_config = LoraConfig( r=16, # rank: 낮을수록 파라미터 적음
+          lora_alpha=32, # scaling factor target_modules=[ # 타겟 레이어
+          "q_proj", "v_proj", "k_proj", "o_proj" ], lora_dropout=0.1,
+          bias="none", task_type="CAUSAL_LM" )
+        </div>
+
+        <div class="benefit-list">
+          <li>메모리 사용량 90% 절약 (24GB에서 7B 모델 훈련 가능)</li>
+          <li>훈련 속도 3-5배 향상</li>
+          <li>원본 모델 가중치 보존으로 안정성 확보</li>
+          <li>여러 LoRA 어댑터로 다양한 실험 가능</li>
+        </div>
+
+        <h3>3. 데이터셋 구축 전략</h3>
+        <div class="two-column">
+          <div>
+            <h4>기존 데이터 활용</h4>
+            <ul>
+              <li><strong>Spider Dataset</strong>: 10,181개 Text2SQL 쌍</li>
+              <li><strong>WikiSQL</strong>: 80,654개 간단한 SQL</li>
+              <li>
+                <strong>SQL-Create-Context</strong>: 78,577개 컨텍스트 포함
+              </li>
+              <li><strong>PostGIS 공식 문서</strong>: 함수 예제들</li>
+            </ul>
+          </div>
+          <div>
+            <h4>PostGIS 특화 데이터 생성</h4>
+            <ul>
+              <li><strong>크라우드소싱</strong>: 50명 × 100개 = 5,000쌍</li>
+              <li><strong>템플릿 기반 생성</strong>: 2,000쌍</li>
+              <li><strong>실제 업무 쿼리 수집</strong>: 1,000쌍</li>
+              <li><strong>합성 데이터 생성</strong>: 2,000쌍</li>
+            </ul>
+          </div>
+        </div>
+
+        <h4>데이터 품질 관리</h4>
+        <div class="code-block">
+          # 데이터 검증 프로세스 1. SQL 구문 검증 (PostgreSQL 파서) 2. PostGIS
+          함수 정확성 검증 3. 실행 가능성 테스트 4. 결과 정확성 검증 5.
+          자연어-SQL 의미 일치성 검증
+        </div>
+      </div>
+
+      <!-- Development Timeline -->
+      <div class="section">
+        <h2>📅 상세 개발 일정</h2>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">1주차</div>
+              <h4>인프라 구축</h4>
+              <ul>
+                <li>RTX 4090 + 워크스테이션 구매 및 설치</li>
+                <li>개발 환경 구축 (CUDA, PyTorch, Transformers)</li>
+                <li>PostgreSQL + PostGIS 테스트 환경 구축</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">2-3주차</div>
+              <h4>데이터셋 수집 시작</h4>
+              <ul>
+                <li>크라우드소싱 플랫폼에 PostGIS 데이터 생성 작업 발주</li>
+                <li>기존 Text2SQL 데이터셋 전처리</li>
+                <li>PostGIS 문서에서 함수 예제 추출</li>
+                <li>데이터 검증 파이프라인 구축</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">4주차</div>
+              <h4>기본 파인튜닝 파이프라인</h4>
+              <ul>
+                <li>LoRA 파인튜닝 코드 구현</li>
+                <li>프롬프트 엔지니어링</li>
+                <li>평가 메트릭 설정 (Execution Accuracy, BLEU, CodeBLEU)</li>
+                <li>Weights & Biases 실험 추적 설정</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">5-6주차</div>
+              <h4>베이스 모델 비교 실험</h4>
+              <ul>
+                <li>CodeLlama vs Mistral vs DeepSeek 성능 비교</li>
+                <li>100개 테스트셋으로 베이스라인 측정</li>
+                <li>각 모델별 강점/약점 분석</li>
+                <li>최적 모델 선택</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">7-8주차</div>
+              <h4>1차 파인튜닝 실험</h4>
+              <ul>
+                <li>선택된 베이스 모델로 첫 파인튜닝</li>
+                <li>기본 LoRA 설정으로 proof of concept</li>
+                <li>초기 성능 측정 및 문제점 분석</li>
+                <li>데이터 품질 이슈 식별</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">9-10주차</div>
+              <h4>하이퍼파라미터 최적화</h4>
+              <ul>
+                <li>Learning rate 스케줄링 최적화</li>
+                <li>LoRA rank, alpha 값 튜닝</li>
+                <li>Batch size, Gradient accumulation 조정</li>
+                <li>훈련 에포크 수 결정</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">11-12주차</div>
+              <h4>데이터 품질 향상</h4>
+              <ul>
+                <li>틀린 예제들 분석하여 패턴 파악</li>
+                <li>부족한 PostGIS 함수 카테고리 식별</li>
+                <li>추가 고품질 데이터 수집</li>
+                <li>Hard negative 샘플링 적용</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">13-14주차</div>
+              <h4>최종 모델 훈련</h4>
+              <ul>
+                <li>최적화된 설정으로 최종 모델 훈련</li>
+                <li>앙상블 기법 실험</li>
+                <li>모델 압축 및 최적화</li>
+                <li>추론 속도 최적화</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">15-16주차</div>
+              <h4>성능 검증 및 배포 준비</h4>
+              <ul>
+                <li>1,000개 테스트셋으로 최종 평가</li>
+                <li>GPT-4, Claude와 벤치마킹</li>
+                <li>실제 업무 시나리오 테스트</li>
+                <li>API 서버 구축 및 데모 준비</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Budget Breakdown -->
+      <div class="section">
+        <h2>💰 상세 예산 계획</h2>
+
+        <div class="budget-item">
+          <div class="budget-header">
+            <h4>하드웨어 (150만원)</h4>
+            <div class="budget-percentage">30%</div>
+          </div>
+          <div class="budget-amount">1,500,000원</div>
+          <ul>
+            <li><strong>RTX 4090 24GB</strong>: 130만원 (중고)</li>
+            <li><strong>DDR5 64GB RAM</strong>: 15만원</li>
+            <li><strong>NVMe SSD 2TB</strong>: 5만원</li>
+          </ul>
+          <p>
+            <em
+              >* 하드웨어는 프로젝트 후에도 계속 활용 가능하며, 재판매시 70%
+              이상 회수 예상</em
+            >
+          </p>
+        </div>
+
+        <div class="budget-item">
+          <div class="budget-header">
+            <h4>데이터셋 구축 (100만원)</h4>
+            <div class="budget-percentage">20%</div>
+          </div>
+          <div class="budget-amount">1,000,000원</div>
+          <ul>
+            <li><strong>크라우드소싱</strong>: 50명 × 2만원 = 100만원</li>
+            <li>각 작업자당 100개 자연어-PostGIS SQL 쌍 생성</li>
+            <li>총 5,000개 고품질 데이터 확보</li>
+          </ul>
+        </div>
+
+        <div class="budget-item">
+          <div class="budget-header">
+            <h4>파인튜닝 비용 (100만원)</h4>
+            <div class="budget-percentage">20%</div>
+          </div>
+          <div class="budget-amount">1,000,000원</div>
+          <ul>
+            <li>
+              <strong>전력비</strong>: RTX 4090 400W × 24시간 × 60일 = 30만원
+            </li>
+            <li>
+              <strong>Weights & Biases Pro</strong>: 월 $20 × 4개월 = 35만원
+            </li>
+            <li><strong>추가 클라우드 실험</strong>: 35만원</li>
+          </ul>
+        </div>
+
+        <div class="budget-item">
+          <div class="budget-header">
+            <h4>평가 및 개선 (100만원)</h4>
+            <div class="budget-percentage">20%</div>
+          </div>
+          <div class="budget-amount">1,000,000원</div>
+          <ul>
+            <li><strong>테스트 데이터 구축</strong>: 40만원</li>
+            <li><strong>벤치마킹 도구 개발</strong>: 30만원</li>
+            <li><strong>사용자 테스트</strong>: 30만원</li>
+          </ul>
+        </div>
+
+        <div class="budget-item">
+          <div class="budget-header">
+            <h4>실험 및 예비비 (50만원)</h4>
+            <div class="budget-percentage">10%</div>
+          </div>
+          <div class="budget-amount">500,000원</div>
+          <ul>
+            <li><strong>다양한 모델 실험</strong>: 30만원</li>
+            <li><strong>예비비</strong>: 20만원</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Technical Architecture -->
+      <div class="section">
+        <h2>🏗️ 기술 아키텍처</h2>
+
+        <h3>전체 시스템 아키텍처</h3>
+        <div
+          style="
+            background: white;
+            padding: 30px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin: 20px 0;
+          "
+        >
+          <svg
+            width="800"
+            height="500"
+            viewBox="0 0 800 500"
+            style="width: 100%; height: auto"
+          >
+            <!-- Background layers -->
+            <rect
+              x="20"
+              y="20"
+              width="760"
+              height="80"
+              fill="#f8fafc"
+              stroke="#e2e8f0"
+              stroke-width="2"
+              rx="5"
+            />
+            <rect
+              x="20"
+              y="120"
+              width="760"
+              height="200"
+              fill="#f1f5f9"
+              stroke="#e2e8f0"
+              stroke-width="2"
+              rx="5"
+            />
+            <rect
+              x="20"
+              y="340"
+              width="760"
+              height="140"
+              fill="#f8fafc"
+              stroke="#e2e8f0"
+              stroke-width="2"
+              rx="5"
+            />
+
+            <!-- Layer labels -->
+            <text
+              x="30"
+              y="40"
+              font-family="Arial, sans-serif"
+              font-size="14"
+              font-weight="bold"
+              fill="#334155"
+            >
+              클라이언트 계층
+            </text>
+            <text
+              x="30"
+              y="140"
+              font-family="Arial, sans-serif"
+              font-size="14"
+              font-weight="bold"
+              fill="#334155"
+            >
+              AI 모델 및 처리 계층
+            </text>
+            <text
+              x="30"
+              y="360"
+              font-family="Arial, sans-serif"
+              font-size="14"
+              font-weight="bold"
+              fill="#334155"
+            >
+              데이터 계층
+            </text>
+
+            <!-- Client Layer Components -->
+            <rect x="50" y="55" width="150" height="35" fill="#3b82f6" rx="3" />
+            <text
+              x="125"
+              y="77"
+              font-family="Arial, sans-serif"
+              font-size="12"
+              fill="white"
+              text-anchor="middle"
+            >
+              Web Dashboard
+            </text>
+
+            <rect
+              x="220"
+              y="55"
+              width="150"
+              height="35"
+              fill="#3b82f6"
+              rx="3"
+            />
+            <text
+              x="295"
+              y="77"
+              font-family="Arial, sans-serif"
+              font-size="12"
+              fill="white"
+              text-anchor="middle"
+            >
+              REST API
+            </text>
+
+            <rect
+              x="390"
+              y="55"
+              width="150"
+              height="35"
+              fill="#3b82f6"
+              rx="3"
+            />
+            <text
+              x="465"
+              y="77"
+              font-family="Arial, sans-serif"
+              font-size="12"
+              fill="white"
+              text-anchor="middle"
+            >
+              Mobile SDK
+            </text>
+
+            <rect
+              x="560"
+              y="55"
+              width="150"
+              height="35"
+              fill="#3b82f6"
+              rx="3"
+            />
+            <text
+              x="635"
+              y="77"
+              font-family="Arial, sans-serif"
+              font-size="12"
+              fill="white"
+              text-anchor="middle"
+            >
+              Third-party Apps
+            </text>
+
+            <!-- AI Model Layer Components -->
+            <rect
+              x="50"
+              y="170"
+              width="280"
+              height="60"
+              fill="#10b981"
+              rx="5"
+            />
+            <text
+              x="190"
+              y="190"
+              font-family="Arial, sans-serif"
+              font-size="13"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              PostGIS Text2SQL Model
+            </text>
+            <text
+              x="190"
+              y="210"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              CodeLlama-7B + LoRA Fine-tuning
+            </text>
+            <text
+              x="190"
+              y="225"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              Specialized for PostGIS Functions
+            </text>
+
+            <rect
+              x="350"
+              y="170"
+              width="140"
+              height="60"
+              fill="#f59e0b"
+              rx="5"
+            />
+            <text
+              x="420"
+              y="190"
+              font-family="Arial, sans-serif"
+              font-size="12"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              Query Validator
+            </text>
+            <text
+              x="420"
+              y="205"
+              font-family="Arial, sans-serif"
+              font-size="10"
+              fill="white"
+              text-anchor="middle"
+            >
+              • SQL Syntax Check
+            </text>
+            <text
+              x="420"
+              y="220"
+              font-family="Arial, sans-serif"
+              font-size="10"
+              fill="white"
+              text-anchor="middle"
+            >
+              • PostGIS Validation
+            </text>
+
+            <rect
+              x="510"
+              y="170"
+              width="140"
+              height="60"
+              fill="#8b5cf6"
+              rx="5"
+            />
+            <text
+              x="580"
+              y="190"
+              font-family="Arial, sans-serif"
+              font-size="12"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              Query Optimizer
+            </text>
+            <text
+              x="580"
+              y="205"
+              font-family="Arial, sans-serif"
+              font-size="10"
+              fill="white"
+              text-anchor="middle"
+            >
+              • Performance Tuning
+            </text>
+            <text
+              x="580"
+              y="220"
+              font-family="Arial, sans-serif"
+              font-size="10"
+              fill="white"
+              text-anchor="middle"
+            >
+              • Index Optimization
+            </text>
+
+            <rect
+              x="50"
+              y="250"
+              width="120"
+              height="50"
+              fill="#64748b"
+              rx="3"
+            />
+            <text
+              x="110"
+              y="270"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              NLP Processor
+            </text>
+            <text
+              x="110"
+              y="285"
+              font-family="Arial, sans-serif"
+              font-size="9"
+              fill="white"
+              text-anchor="middle"
+            >
+              Intent Classification
+            </text>
+
+            <rect
+              x="190"
+              y="250"
+              width="120"
+              height="50"
+              fill="#64748b"
+              rx="3"
+            />
+            <text
+              x="250"
+              y="270"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              Context Manager
+            </text>
+            <text
+              x="250"
+              y="285"
+              font-family="Arial, sans-serif"
+              font-size="9"
+              fill="white"
+              text-anchor="middle"
+            >
+              Schema Integration
+            </text>
+
+            <rect
+              x="330"
+              y="250"
+              width="120"
+              height="50"
+              fill="#64748b"
+              rx="3"
+            />
+            <text
+              x="390"
+              y="270"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              Response Formatter
+            </text>
+            <text
+              x="390"
+              y="285"
+              font-family="Arial, sans-serif"
+              font-size="9"
+              fill="white"
+              text-anchor="middle"
+            >
+              Explanation Generator
+            </text>
+
+            <rect
+              x="470"
+              y="250"
+              width="120"
+              height="50"
+              fill="#64748b"
+              rx="3"
+            />
+            <text
+              x="530"
+              y="270"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              Cache Manager
+            </text>
+            <text
+              x="530"
+              y="285"
+              font-family="Arial, sans-serif"
+              font-size="9"
+              fill="white"
+              text-anchor="middle"
+            >
+              Query Caching
+            </text>
+
+            <rect
+              x="610"
+              y="250"
+              width="120"
+              height="50"
+              fill="#64748b"
+              rx="3"
+            />
+            <text
+              x="670"
+              y="270"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              Monitoring
+            </text>
+            <text
+              x="670"
+              y="285"
+              font-family="Arial, sans-serif"
+              font-size="9"
+              fill="white"
+              text-anchor="middle"
+            >
+              Performance Metrics
+            </text>
+
+            <!-- Data Layer Components -->
+            <rect
+              x="50"
+              y="380"
+              width="200"
+              height="80"
+              fill="#dc2626"
+              rx="5"
+            />
+            <text
+              x="150"
+              y="405"
+              font-family="Arial, sans-serif"
+              font-size="13"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              PostgreSQL Database
+            </text>
+            <text
+              x="150"
+              y="425"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • PostGIS Extension
+            </text>
+            <text
+              x="150"
+              y="440"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • Spatial Indexes
+            </text>
+            <text
+              x="150"
+              y="455"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • Geometry Data Types
+            </text>
+
+            <rect
+              x="270"
+              y="380"
+              width="150"
+              height="80"
+              fill="#059669"
+              rx="5"
+            />
+            <text
+              x="345"
+              y="405"
+              font-family="Arial, sans-serif"
+              font-size="13"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              Schema Registry
+            </text>
+            <text
+              x="345"
+              y="425"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • Table Metadata
+            </text>
+            <text
+              x="345"
+              y="440"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • Column Definitions
+            </text>
+            <text
+              x="345"
+              y="455"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • Relationship Mapping
+            </text>
+
+            <rect
+              x="440"
+              y="380"
+              width="150"
+              height="80"
+              fill="#7c3aed"
+              rx="5"
+            />
+            <text
+              x="515"
+              y="405"
+              font-family="Arial, sans-serif"
+              font-size="13"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              Training Data Store
+            </text>
+            <text
+              x="515"
+              y="425"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • Text-SQL Pairs
+            </text>
+            <text
+              x="515"
+              y="440"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • Validation Sets
+            </text>
+            <text
+              x="515"
+              y="455"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • Feedback Logs
+            </text>
+
+            <rect
+              x="610"
+              y="380"
+              width="150"
+              height="80"
+              fill="#ea580c"
+              rx="5"
+            />
+            <text
+              x="685"
+              y="405"
+              font-family="Arial, sans-serif"
+              font-size="13"
+              font-weight="bold"
+              fill="white"
+              text-anchor="middle"
+            >
+              Configuration Store
+            </text>
+            <text
+              x="685"
+              y="425"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • Model Parameters
+            </text>
+            <text
+              x="685"
+              y="440"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • System Settings
+            </text>
+            <text
+              x="685"
+              y="455"
+              font-family="Arial, sans-serif"
+              font-size="11"
+              fill="white"
+              text-anchor="middle"
+            >
+              • API Configurations
+            </text>
+
+            <!-- Data Flow Arrows -->
+            <!-- Client to AI Model -->
+            <path
+              d="M 125 100 L 125 160"
+              stroke="#475569"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <path
+              d="M 295 100 L 295 160"
+              stroke="#475569"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <path
+              d="M 465 100 L 465 160"
+              stroke="#475569"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <path
+              d="M 635 100 L 635 160"
+              stroke="#475569"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+
+            <!-- Between AI Model components -->
+            <path
+              d="M 330 200 L 340 200"
+              stroke="#475569"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <path
+              d="M 490 200 L 500 200"
+              stroke="#475569"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+
+            <!-- AI Model to Data -->
+            <path
+              d="M 150 320 L 150 370"
+              stroke="#475569"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <path
+              d="M 345 320 L 345 370"
+              stroke="#475569"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <path
+              d="M 515 320 L 515 370"
+              stroke="#475569"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <path
+              d="M 685 320 L 685 370"
+              stroke="#475569"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+
+            <!-- Arrow marker definition -->
+            <defs>
+              <marker
+                id="arrowhead"
+                markerWidth="10"
+                markerHeight="7"
+                refX="9"
+                refY="3.5"
+                orient="auto"
+              >
+                <polygon points="0 0, 10 3.5, 0 7" fill="#475569" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <h4>데이터 플로우</h4>
+        <div
+          style="
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 15px 0;
+          "
+        >
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 30px 1fr 30px 1fr 30px 1fr;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <div
+              style="
+                background: white;
+                padding: 15px;
+                border-radius: 4px;
+                text-align: center;
+                border: 1px solid #e2e8f0;
+              "
+            >
+              <strong>자연어 입력</strong><br />
+              <small>"강남구에서 1km 내 카페"</small>
+            </div>
+            <div style="text-align: center; font-size: 20px; color: #64748b">
+              →
+            </div>
+            <div
+              style="
+                background: white;
+                padding: 15px;
+                border-radius: 4px;
+                text-align: center;
+                border: 1px solid #e2e8f0;
+              "
+            >
+              <strong>AI 모델 처리</strong><br />
+              <small>PostGIS 쿼리 생성</small>
+            </div>
+            <div style="text-align: center; font-size: 20px; color: #64748b">
+              →
+            </div>
+            <div
+              style="
+                background: white;
+                padding: 15px;
+                border-radius: 4px;
+                text-align: center;
+                border: 1px solid #e2e8f0;
+              "
+            >
+              <strong>검증 & 최적화</strong><br />
+              <small>문법 체크, 성능 튜닝</small>
+            </div>
+            <div style="text-align: center; font-size: 20px; color: #64748b">
+              →
+            </div>
+            <div
+              style="
+                background: white;
+                padding: 15px;
+                border-radius: 4px;
+                text-align: center;
+                border: 1px solid #e2e8f0;
+              "
+            >
+              <strong>SQL 실행</strong><br />
+              <small>PostgreSQL + PostGIS</small>
+            </div>
+          </div>
+        </div>
+
+        <h3>핵심 모델 아키텍처</h3>
+        <div class="two-column">
+          <div>
+            <h4>입력 처리</h4>
+            <ol style="line-height: 1.8">
+              <li><strong>자연어 파싱</strong>: 의도 분석 및 엔티티 추출</li>
+              <li><strong>컨텍스트 추가</strong>: 스키마 정보, 테이블 구조</li>
+              <li><strong>프롬프트 생성</strong>: 최적화된 입력 형태로 변환</li>
+            </ol>
+          </div>
+          <div>
+            <h4>출력 후처리</h4>
+            <ol style="line-height: 1.8">
+              <li><strong>SQL 파싱</strong>: 구문 분석 및 유효성 검증</li>
+              <li><strong>PostGIS 함수 검증</strong>: 공간 연산 정확성 확인</li>
+              <li><strong>성능 최적화</strong>: 인덱스 활용, 쿼리 튜닝</li>
+              <li><strong>설명 생성</strong>: 사용자를 위한 쿼리 해석</li>
+            </ol>
+          </div>
+        </div>
+        <div class="tech-stack">
+          <div class="tech-item">
+            <strong>Base Model</strong><br />
+            CodeLlama-7B-Instruct<br />
+            7B parameters
+          </div>
+          <div class="tech-item">
+            <strong>Fine-tuning</strong><br />
+            LoRA (r=16, α=32)<br />
+            Target: attention layers
+          </div>
+          <div class="tech-item">
+            <strong>Training</strong><br />
+            AdamW optimizer<br />
+            Cosine LR schedule
+          </div>
+          <div class="tech-item">
+            <strong>Inference</strong><br />
+            FP16 precision<br />
+            Flash Attention 2
+          </div>
+        </div>
+
+        <h3>프롬프트 엔지니어링</h3>
+        <div class="code-block">
+          ### System Prompt: You are an expert PostgreSQL/PostGIS developer.
+          Convert natural language to accurate PostGIS SQL queries. ###
+          Instructions: 1. Use appropriate PostGIS spatial functions 2. Include
+          proper coordinate system (EPSG:4326 for WGS84) 3. Optimize for spatial
+          indexes 4. Handle Korean geographic terms correctly ### Input: {자연어
+          질문} ### Database Schema: {테이블 스키마 정보} ### Output: ```sql
+          {PostGIS SQL 쿼리} ``` ### Explanation: {쿼리 설명}
+        </div>
+
+        <h3>평가 메트릭</h3>
+        <div class="two-column">
+          <div>
+            <h4>정확성 메트릭</h4>
+            <ul>
+              <li><strong>Execution Accuracy</strong>: 쿼리 실행 성공률</li>
+              <li><strong>Result Accuracy</strong>: 결과의 정확성</li>
+              <li><strong>Syntax Accuracy</strong>: SQL 문법 정확성</li>
+              <li><strong>PostGIS Function Usage</strong>: 적절한 함수 사용</li>
+            </ul>
+          </div>
+          <div>
+            <h4>품질 메트릭</h4>
+            <ul>
+              <li><strong>BLEU Score</strong>: 텍스트 유사도</li>
+              <li><strong>CodeBLEU</strong>: 코드 특화 유사도</li>
+              <li><strong>Semantic Accuracy</strong>: 의미적 정확성</li>
+              <li><strong>Performance Score</strong>: 쿼리 효율성</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Market Analysis -->
+      <div class="section">
+        <h2>📊 시장 분석 및 비즈니스 모델</h2>
+
+        <h3>타겟 시장 규모</h3>
+        <div class="three-column">
+          <div class="metric-box">
+            <div class="metric-number">$18B</div>
+            <div class="metric-label">글로벌 GIS 시장 (2024)</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-number">25%</div>
+            <div class="metric-label">연평균 성장률</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-number">2.1조원</div>
+            <div class="metric-label">국내 공간정보 시장</div>
+          </div>
+        </div>
+
+        <h3>타겟 고객 세그먼트</h3>
+        <div class="two-column">
+          <div>
+            <h4>1차 타겟 (B2B)</h4>
+            <ul>
+              <li>
+                <strong>GIS 솔루션 기업</strong>: ESRI, Bentley, 국내 GIS 업체
+              </li>
+              <li><strong>물류/배송 서비스</strong>: 쿠팡, 마켓컬리, 배달앱</li>
+              <li><strong>부동산 테크</strong>: 직방, 다방, 호갱노노</li>
+              <li><strong>모빌리티 서비스</strong>: 카카오모빌리티, 우버</li>
+            </ul>
+          </div>
+          <div>
+            <h4>2차 타겟 (B2G)</h4>
+            <ul>
+              <li><strong>지자체</strong>: 스마트시티 프로젝트</li>
+              <li><strong>공공기관</strong>: 국토부, 통계청</li>
+              <li><strong>연구기관</strong>: KICT, 대학 연구소</li>
+              <li><strong>금융기관</strong>: 위치 기반 리스크 분석</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>수익 모델</h3>
+        <div class="budget-item">
+          <div class="budget-header">
+            <h4>1. 라이센스 모델</h4>
+            <div class="budget-percentage">예상 수익 60%</div>
+          </div>
+          <ul>
+            <li><strong>Enterprise License</strong>: 연 5,000만원 (대기업)</li>
+            <li><strong>SMB License</strong>: 연 1,000만원 (중소기업)</li>
+            <li><strong>Developer License</strong>: 연 500만원 (개발자)</li>
+          </ul>
+        </div>
+
+        <div class="budget-item">
+          <div class="budget-header">
+            <h4>2. API 서비스</h4>
+            <div class="budget-percentage">예상 수익 25%</div>
+          </div>
+          <ul>
+            <li><strong>API 호출</strong>: 건당 100원</li>
+            <li><strong>월간 구독</strong>: 10,000건 100만원</li>
+            <li><strong>종량제</strong>: 추가 건당 50원</li>
+          </ul>
+        </div>
+
+        <div class="budget-item">
+          <div class="budget-header">
+            <h4>3. 컨설팅 서비스</h4>
+            <div class="budget-percentage">예상 수익 15%</div>
+          </div>
+          <ul>
+            <li><strong>커스터마이징</strong>: 프로젝트당 2,000만원</li>
+            <li><strong>교육 서비스</strong>: 1일 교육 500만원</li>
+            <li><strong>기술 지원</strong>: 연간 1,000만원</li>
+          </ul>
+        </div>
+
+        <h3>경쟁 우위</h3>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>요소</th>
+              <th>기존 솔루션</th>
+              <th>우리 솔루션</th>
+              <th>차별점</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PostGIS 특화도</td>
+              <td>범용 AI (60% 정확도)</td>
+              <td>특화 AI (85%+ 정확도)</td>
+              <td>25% 성능 향상</td>
+            </tr>
+            <tr>
+              <td>한국어 지원</td>
+              <td>제한적</td>
+              <td>완벽 지원</td>
+              <td>국내 시장 독점</td>
+            </tr>
+            <tr>
+              <td>비용 구조</td>
+              <td>사용량 기반 과금</td>
+              <td>라이센스 + 무제한</td>
+              <td>예측 가능한 비용</td>
+            </tr>
+            <tr>
+              <td>커스터마이징</td>
+              <td>불가능</td>
+              <td>도메인별 특화 가능</td>
+              <td>고객 맞춤 최적화</td>
+            </tr>
+            <tr>
+              <td>데이터 보안</td>
+              <td>외부 API 의존</td>
+              <td>온프레미스 배포</td>
+              <td>완전한 데이터 통제</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Risk Management -->
+      <div class="section">
+        <h2>⚠️ 리스크 분석 및 대응 방안</h2>
+
+        <div class="risk-item">
+          <h5>기술적 리스크</h5>
+          <p><strong>리스크:</strong> 목표 성능(85%) 달성 실패</p>
+          <p><strong>확률:</strong> 낮음 (10%) - 검증된 파인튜닝 기법 사용</p>
+          <p>
+            <strong>대응:</strong> 단계별 성능 검증, 다중 모델 앙상블, 데이터
+            품질 지속 개선
+          </p>
+        </div>
+
+        <div class="risk-item">
+          <h5>예산 초과 리스크</h5>
+          <p><strong>리스크:</strong> 하드웨어 가격 상승, 개발 기간 연장</p>
+          <p><strong>확률:</strong> 중간 (30%)</p>
+          <p>
+            <strong>대응:</strong> 중고 하드웨어 활용, 클라우드 대안 준비,
+            단계별 예산 관리
+          </p>
+        </div>
+
+        <div class="risk-item">
+          <h5>시장 진입 리스크</h5>
+          <p><strong>리스크:</strong> 대기업 경쟁자 등장, 시장 수요 과소평가</p>
+          <p><strong>확률:</strong> 중간 (25%)</p>
+          <p>
+            <strong>대응:</strong> 빠른 MVP 출시, 특화 영역 집중, 전략적
+            파트너십
+          </p>
+        </div>
+
+        <div class="risk-item">
+          <h5>기술 변화 리스크</h5>
+          <p><strong>리스크:</strong> 새로운 AI 모델 등장으로 기술 노후화</p>
+          <p><strong>확률:</strong> 높음 (60%) - AI 기술 빠른 발전</p>
+          <p>
+            <strong>대응:</strong> 모듈화된 아키텍처, 지속적 모델 업데이트,
+            오픈소스 기여
+          </p>
+        </div>
+
+        <h3>성공 확률 높이는 요인</h3>
+        <ul class="benefit-list">
+          <li>명확한 니치 시장 (PostGIS 특화)</li>
+          <li>검증된 기술 스택 (LoRA 파인튜닝)</li>
+          <li>적절한 예산과 일정</li>
+          <li>구체적이고 측정 가능한 목표</li>
+          <li>단계별 검증 프로세스</li>
+        </ul>
+      </div>
+
+      <!-- ROI Analysis -->
+      <div class="section">
+        <h2>📈 투자 수익 분석</h2>
+
+        <h3>투자 회수 시나리오</h3>
+        <div class="three-column">
+          <div class="metric-box">
+            <div class="metric-number" style="font-size: 1.8rem">보수적</div>
+            <div class="metric-label">첫해 3개 고객</div>
+            <div style="margin-top: 10px; font-size: 0.9rem">
+              연매출: 1.5억원<br />
+              투자회수: 6개월
+            </div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-number" style="font-size: 1.8rem">현실적</div>
+            <div class="metric-label">첫해 10개 고객</div>
+            <div style="margin-top: 10px; font-size: 0.9rem">
+              연매출: 5억원<br />
+              투자회수: 3개월
+            </div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-number" style="font-size: 1.8rem">낙관적</div>
+            <div class="metric-label">첫해 25개 고객</div>
+            <div style="margin-top: 10px; font-size: 0.9rem">
+              연매출: 12억원<br />
+              투자회수: 2개월
+            </div>
+          </div>
+        </div>
+
+        <h3>5년간 수익 전망</h3>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>연도</th>
+              <th>고객 수</th>
+              <th>연매출</th>
+              <th>순이익</th>
+              <th>누적 ROI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1년차</td>
+              <td>10개</td>
+              <td>5억원</td>
+              <td>3억원</td>
+              <td>6,000%</td>
+            </tr>
+            <tr>
+              <td>2년차</td>
+              <td>25개</td>
+              <td>12억원</td>
+              <td>8억원</td>
+              <td>22,000%</td>
+            </tr>
+            <tr>
+              <td>3년차</td>
+              <td>50개</td>
+              <td>25억원</td>
+              <td>18억원</td>
+              <td>58,000%</td>
+            </tr>
+            <tr>
+              <td>4년차</td>
+              <td>80개</td>
+              <td>40억원</td>
+              <td>30억원</td>
+              <td>118,000%</td>
+            </tr>
+            <tr>
+              <td>5년차</td>
+              <td>120개</td>
+              <td>60억원</td>
+              <td>45억원</td>
+              <td>208,000%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Exit 전략</h3>
+        <div class="two-column">
+          <div>
+            <h4>M&A 가능성</h4>
+            <ul>
+              <li><strong>GIS 대기업</strong>: ESRI, Bentley Systems</li>
+              <li><strong>클라우드 업체</strong>: AWS, Google Cloud, Azure</li>
+              <li><strong>국내 대기업</strong>: 네이버, 카카오, LG CNS</li>
+              <li><strong>예상 기업가치</strong>: 3년 후 500-1,000억원</li>
+            </ul>
+          </div>
+          <div>
+            <h4>IPO 가능성</h4>
+            <ul>
+              <li><strong>코스닥 상장</strong>: 연매출 100억원 달성 시</li>
+              <li><strong>나스닥 상장</strong>: 글로벌 진출 성공 시</li>
+              <li><strong>예상 시점</strong>: 5-7년 후</li>
+              <li><strong>예상 시가총액</strong>: 1,000-5,000억원</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Implementation Plan -->
+      <div class="section">
+        <h2>🚀 실행 계획</h2>
+
+        <h3>즉시 실행 가능한 액션 아이템</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">Day 1-3</div>
+              <h4>하드웨어 주문 및 초기 설정</h4>
+              <ul>
+                <li>RTX 4090 및 워크스테이션 주문</li>
+                <li>개발 환경 구축 계획 수립</li>
+                <li>GitHub Repository 생성</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">Day 4-7</div>
+              <h4>크라우드소싱 플랫폼 준비</h4>
+              <ul>
+                <li>크몽, 숨고 등에 PostGIS 데이터 생성 작업 등록</li>
+                <li>작업 가이드라인 및 품질 기준 문서화</li>
+                <li>샘플 데이터 100개 직접 생성</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-week">Week 2</div>
+              <h4>기술 스택 검증</h4>
+              <ul>
+                <li>CodeLlama-7B 기본 성능 테스트</li>
+                <li>LoRA 파인튜닝 프로토타입 구현</li>
+                <li>PostgreSQL + PostGIS 테스트 환경 구축</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h3>필요한 인력 및 역할</h3>
+        <div class="two-column">
+          <div>
+            <h4>핵심 팀 (풀타임)</h4>
+            <ul>
+              <li><strong>AI/ML 엔지니어</strong>: 모델 개발 총괄</li>
+              <li><strong>백엔드 개발자</strong>: PostgreSQL 전문가</li>
+              <li><strong>데이터 엔지니어</strong>: 데이터셋 구축 및 검증</li>
+            </ul>
+          </div>
+          <div>
+            <h4>지원 팀 (파트타임)</h4>
+            <ul>
+              <li><strong>GIS 전문가</strong>: PostGIS 함수 검증</li>
+              <li><strong>QA 엔지니어</strong>: 테스트 및 품질 관리</li>
+              <li><strong>프로덕트 매니저</strong>: 고객 요구사항 분석</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>성공 지표 (KPI)</h3>
+        <div class="three-column">
+          <div class="metric-box">
+            <div class="metric-number">85%+</div>
+            <div class="metric-label">PostGIS 함수 정확도</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-number">90%+</div>
+            <div class="metric-label">SQL 실행 성공률</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-number">95%+</div>
+            <div class="metric-label">고객 만족도</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conclusion -->
+      <div class="cta-section">
+        <h2>결론 및 제안</h2>
+        <p style="font-size: 1.2rem; margin: 20px 0; line-height: 1.8">
+          PostGIS Text2SQL AI 모델 개발 프로젝트는
+          <strong>500만원의 적절한 투자</strong>로
+          <strong>4개월 내에 시장을 선도하는 특화 AI 솔루션</strong>을 구축할 수
+          있는 <strong>매우 현실적이고 수익성 높은 기회</strong>입니다.
+        </p>
+
+        <div style="text-align: left; max-width: 600px; margin: 0 auto">
+          <h3 style="color: #f59e0b; margin-bottom: 15px">핵심 성공 요인:</h3>
+          <ul class="benefit-list" style="color: white">
+            <li>명확한 시장 니즈와 기술적 차별화</li>
+            <li>검증된 기술 스택과 충분한 예산</li>
+            <li>구체적이고 측정 가능한 개발 계획</li>
+            <li>높은 ROI와 다양한 Exit 전략</li>
+          </ul>
+        </div>
+
+        <div style="margin: 30px 0">
+          <button class="cta-button">프로젝트 시작</button>
+          <button class="cta-button">투자 검토</button>
+          <button class="cta-button">기술 문의</button>
+        </div>
+
+        <p style="font-style: italic; opacity: 0.9">
+          "AI의 미래는 범용성이 아닌 특화에 있습니다. PostGIS Text2SQL은 그
+          완벽한 시작점입니다."
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Scroll progress indicator
+      window.addEventListener('scroll', function () {
+        const progressElement = document.getElementById('scrollProgress');
+        if (progressElement) {
+          const scrollTop = window.pageYOffset;
+          const docHeight =
+            document.documentElement.scrollHeight - window.innerHeight;
+          const scrollPercent = (scrollTop / docHeight) * 100;
+          progressElement.style.width = scrollPercent + '%';
+        }
+      });
+
+      // Smooth scrolling for anchor links
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+              });
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

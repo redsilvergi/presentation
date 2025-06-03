@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Presentation Portfolio</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        color: #0f172a;
+        line-height: 1.6;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        min-height: 100vh;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #e2e8f0;
+        border-radius: 50px;
+        padding: 12px 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        color: #475569;
+        backdrop-filter: blur(20px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .theme-toggle:hover {
+        background: rgba(255, 255, 255, 1);
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .background-pattern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.04;
+        background-image: radial-gradient(
+            circle at 25% 25%,
+            #3b82f6 1px,
+            transparent 1px
+          ),
+          radial-gradient(circle at 75% 75%, #8b5cf6 1px, transparent 1px);
+        background-size: 60px 60px;
+        z-index: -1;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      .header {
+        padding: 80px 0 60px 0;
+        text-align: center;
+        position: relative;
+      }
+
+      .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1px;
+        height: 60px;
+        background: linear-gradient(
+          to bottom,
+          transparent,
+          #3b82f6,
+          transparent
+        );
+      }
+
+      .header h1 {
+        font-size: clamp(2.5rem, 5vw, 3.5rem);
+        font-weight: 700;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -0.02em;
+      }
+
+      .header p {
+        font-size: 1.125rem;
+        color: #64748b;
+        font-weight: 400;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .nav-bar {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 60px;
+      }
+
+      .search-container {
+        position: relative;
+        width: 100%;
+        max-width: 480px;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 18px;
+      }
+
+      .search-bar {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px 20px 16px 50px;
+        color: #0f172a;
+        font-size: 15px;
+        font-weight: 400;
+        backdrop-filter: blur(20px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .search-bar::placeholder {
+        color: #94a3b8;
+      }
+
+      .search-bar:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 24px;
+        margin-bottom: 60px;
+      }
+
+      .stat-card {
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 32px 24px;
+        text-align: center;
+        backdrop-filter: blur(20px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .stat-card:hover {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: #cbd5e1;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
+      }
+
+      .stat-label {
+        font-size: 14px;
+        color: #64748b;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .presentations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 32px;
+        margin-bottom: 80px;
+      }
+
+      .presentation-card {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 32px;
+        backdrop-filter: blur(20px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .presentation-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .presentation-card:hover {
+        background: rgba(255, 255, 255, 0.95);
+        border-color: #cbd5e1;
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .presentation-card:hover::before {
+        opacity: 1;
+      }
+
+      .card-header {
+        margin-bottom: 20px;
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 8px;
+        line-height: 1.4;
+        letter-spacing: -0.01em;
+      }
+
+      .card-date {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .card-description {
+        color: #475569;
+        line-height: 1.6;
+        margin-bottom: 24px;
+        font-size: 15px;
+      }
+
+      .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+
+      .tag {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+      }
+
+      .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .view-button {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: #ffffff;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        letter-spacing: -0.01em;
+      }
+
+      .view-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+      }
+
+      .view-button::after {
+        content: '→';
+        transition: transform 0.2s ease;
+      }
+
+      .view-button:hover::after {
+        transform: translateX(2px);
+      }
+
+      .status {
+        font-size: 11px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .status.new {
+        background: rgba(34, 197, 94, 0.1);
+        color: #059669;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+      }
+
+      .status.updated {
+        background: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+      }
+
+      .add-new-card {
+        background: rgba(255, 255, 255, 0.5);
+        border: 2px dashed #cbd5e1;
+        color: #64748b;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 280px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 20px;
+      }
+
+      .add-new-card:hover {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: #94a3b8;
+        color: #475569;
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      }
+
+      .add-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+        opacity: 0.6;
+        font-weight: 300;
+      }
+
+      .add-text {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .add-subtext {
+        font-size: 13px;
+        opacity: 0.7;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 60px 0 40px 0;
+        border-top: 1px solid #e2e8f0;
+        margin-top: 80px;
+      }
+
+      .footer p {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+
+      .footer a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .footer a:hover {
+        color: #2563eb;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #64748b;
+      }
+
+      .empty-state h3 {
+        font-size: 1.25rem;
+        margin-bottom: 8px;
+        color: #475569;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 0 16px;
+        }
+
+        .presentations-grid {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .presentation-card {
+          padding: 24px;
+        }
+
+        .theme-toggle {
+          top: 16px;
+          right: 16px;
+          padding: 10px 16px;
+          font-size: 13px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .card-footer {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 16px;
+        }
+
+        .view-button {
+          text-align: center;
+          justify-content: center;
+        }
+      }
+
+      /* Dark theme styles */
+      body.dark {
+        background: #0f0f23;
+        color: #ffffff;
+      }
+
+      body.dark .theme-toggle {
+        background: rgba(30, 41, 59, 0.9);
+        border-color: rgba(71, 85, 105, 0.3);
+        color: #cbd5e1;
+      }
+
+      body.dark .theme-toggle:hover {
+        background: rgba(30, 41, 59, 1);
+        border-color: rgba(71, 85, 105, 0.5);
+      }
+
+      body.dark .background-pattern {
+        background-image: radial-gradient(
+            circle at 25% 25%,
+            #ffffff 1px,
+            transparent 1px
+          ),
+          radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px);
+        opacity: 0.03;
+      }
+
+      body.dark .header h1 {
+        background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      body.dark .header p {
+        color: #94a3b8;
+      }
+
+      body.dark .search-bar {
+        background: rgba(30, 41, 59, 0.4);
+        border-color: rgba(71, 85, 105, 0.3);
+        color: #ffffff;
+      }
+
+      body.dark .search-bar:focus {
+        background: rgba(30, 41, 59, 0.6);
+        border-color: #3b82f6;
+      }
+
+      body.dark .search-bar::placeholder {
+        color: #64748b;
+      }
+
+      body.dark .stat-card {
+        background: rgba(30, 41, 59, 0.3);
+        border-color: rgba(71, 85, 105, 0.2);
+      }
+
+      body.dark .stat-card:hover {
+        background: rgba(30, 41, 59, 0.5);
+        border-color: rgba(71, 85, 105, 0.4);
+      }
+
+      body.dark .stat-number {
+        color: #ffffff;
+      }
+
+      body.dark .stat-label {
+        color: #94a3b8;
+      }
+
+      body.dark .presentation-card {
+        background: rgba(30, 41, 59, 0.4);
+        border-color: rgba(71, 85, 105, 0.2);
+      }
+
+      body.dark .presentation-card:hover {
+        background: rgba(30, 41, 59, 0.6);
+        border-color: rgba(71, 85, 105, 0.4);
+      }
+
+      body.dark .card-title {
+        color: #ffffff;
+      }
+
+      body.dark .card-date {
+        color: #64748b;
+      }
+
+      body.dark .card-description {
+        color: #cbd5e1;
+      }
+
+      body.dark .tag {
+        background: rgba(59, 130, 246, 0.1);
+        color: #93c5fd;
+        border-color: rgba(59, 130, 246, 0.2);
+      }
+
+      body.dark .status.new {
+        background: rgba(34, 197, 94, 0.1);
+        color: #4ade80;
+        border-color: rgba(34, 197, 94, 0.2);
+      }
+
+      body.dark .status.updated {
+        background: rgba(245, 158, 11, 0.1);
+        color: #fbbf24;
+        border-color: rgba(245, 158, 11, 0.2);
+      }
+
+      body.dark .add-new-card {
+        background: rgba(30, 41, 59, 0.2);
+        border-color: rgba(71, 85, 105, 0.3);
+        color: #94a3b8;
+      }
+
+      body.dark .add-new-card:hover {
+        background: rgba(30, 41, 59, 0.4);
+        border-color: rgba(71, 85, 105, 0.5);
+        color: #cbd5e1;
+      }
+
+      body.dark .footer {
+        border-color: rgba(71, 85, 105, 0.2);
+      }
+
+      body.dark .footer p {
+        color: #64748b;
+      }
+
+      body.dark .empty-state {
+        color: #64748b;
+      }
+
+      body.dark .empty-state h3 {
+        color: #94a3b8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+      <span id="themeIcon">🌙</span>
+      <span id="themeText">Dark Mode</span>
+    </div>
+
+    <div class="background-pattern"></div>
+
+    <div class="container">
+      <header class="header">
+        <h1>Presentation Portfolio</h1>
+        <p>프로젝트 제안서 및 기술 발표 자료 컬렉션</p>
+      </header>
+
+      <nav class="nav-bar">
+        <div class="search-container">
+          <span class="search-icon">⌕</span>
+          <input
+            type="text"
+            class="search-bar"
+            placeholder="프레젠테이션 검색..."
+            id="searchInput"
+          />
+        </div>
+      </nav>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="totalPresentations">1</div>
+          <div class="stat-label">Presentations</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalProjects">1</div>
+          <div class="stat-label">Projects</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="lastUpdated">Dec 5, 2024</div>
+          <div class="stat-label">Last Updated</div>
+        </div>
+      </div>
+
+      <main>
+        <div class="presentations-grid" id="presentationsGrid">
+          <!-- 기존 프레젠테이션 -->
+          <article
+            class="presentation-card"
+            onclick="openPresentation('postgis_text2sql_pitch.html')"
+          >
+            <header class="card-header">
+              <h2 class="card-title">PostGIS Text2SQL AI 모델 개발</h2>
+              <time class="card-date" datetime="2024-12-05"
+                >December 5, 2024</time
+              >
+            </header>
+            <p class="card-description">
+              자연어를 PostgreSQL/PostGIS 쿼리로 변환하는 특화 AI 모델 개발
+              제안서. 500만원 예산으로 4개월 내 GPT-4 대비 30% 향상된 성능 달성.
+            </p>
+            <div class="card-tags">
+              <span class="tag">AI/ML</span>
+              <span class="tag">PostgreSQL</span>
+              <span class="tag">PostGIS</span>
+              <span class="tag">Text2SQL</span>
+            </div>
+            <footer class="card-footer">
+              <a href="postgis_text2sql_pitch.html" class="view-button"
+                >View Presentation</a
+              >
+              <span class="status new">New</span>
+            </footer>
+          </article>
+
+          <!-- 새 프레젠테이션 추가 카드 -->
+          <div
+            class="presentation-card add-new-card"
+            onclick="showAddInstructions()"
+          >
+            <div class="add-icon">+</div>
+            <div class="add-text">새 프레젠테이션 추가</div>
+            <div class="add-subtext">HTML 파일을 업로드하세요</div>
+          </div>
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display: none">
+          <h3>검색 결과가 없습니다</h3>
+          <p>다른 키워드로 검색해보세요</p>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <p>© 2024 Presentation Portfolio</p>
+        <p>
+          Powered by
+          <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      // 프레젠테이션 데이터
+      const presentations = [
+        {
+          title: 'PostGIS Text2SQL AI 모델 개발',
+          date: 'December 5, 2024',
+          dateTime: '2024-12-05',
+          description:
+            '자연어를 PostgreSQL/PostGIS 쿼리로 변환하는 특화 AI 모델 개발 제안서. 500만원 예산으로 4개월 내 GPT-4 대비 30% 향상된 성능 달성.',
+          tags: ['AI/ML', 'PostgreSQL', 'PostGIS', 'Text2SQL'],
+          filename: 'postgis_text2sql_pitch.html',
+          status: 'new',
+        },
+        // 새로운 프레젠테이션 추가 예시:
+        // {
+        //     title: "블록체인 DeFi 플랫폼 설계",
+        //     date: "January 15, 2025",
+        //     dateTime: "2025-01-15",
+        //     description: "탈중앙화 금융 플랫폼 아키텍처 및 스마트 컨트랙트 설계 방안",
+        //     tags: ["Blockchain", "DeFi", "Smart Contract", "Web3"],
+        //     filename: "defi_platform_design.html",
+        //     status: "new"
+        // }
+      ];
+
+      // Theme toggle functionality (localStorage fallback)
+      function toggleTheme() {
+        const body = document.body;
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+
+        body.classList.toggle('dark');
+
+        if (body.classList.contains('dark')) {
+          themeIcon.textContent = '☀️';
+          themeText.textContent = 'Light Mode';
+          // Try to save theme, but don't fail if localStorage is unavailable
+          try {
+            localStorage.setItem('theme', 'dark');
+          } catch (e) {
+            // Silently ignore localStorage errors (sandbox environment)
+          }
+        } else {
+          themeIcon.textContent = '🌙';
+          themeText.textContent = 'Dark Mode';
+          try {
+            localStorage.setItem('theme', 'light');
+          } catch (e) {
+            // Silently ignore localStorage errors
+          }
+        }
+      }
+
+      // Load saved theme (with fallback)
+      function loadTheme() {
+        let savedTheme = null;
+
+        // Try to get saved theme, fallback to system preference
+        try {
+          savedTheme = localStorage.getItem('theme');
+        } catch (e) {
+          // localStorage not available, use system preference
+          savedTheme = null;
+        }
+
+        const prefersDark =
+          window.matchMedia &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+          document.body.classList.add('dark');
+          document.getElementById('themeIcon').textContent = '☀️';
+          document.getElementById('themeText').textContent = 'Light Mode';
+        }
+      }
+
+      function openPresentation(filename) {
+        window.open(filename, '_blank');
+      }
+
+      function showAddInstructions() {
+        const instructions = `
+새 프레젠테이션 추가 방법:
+
+1. 새로운 HTML 파일을 repository에 업로드
+2. index.html의 presentations 배열에 새 항목 추가:
+
+{
+    title: "프레젠테이션 제목",
+    date: "Month DD, YYYY",
+    dateTime: "YYYY-MM-DD",
+    description: "프레젠테이션 설명...",
+    tags: ["태그1", "태그2", "태그3"],
+    filename: "파일명.html",
+    status: "new"
+}
+
+3. 변경사항을 commit & push
+
+자동으로 새 카드가 생성됩니다!
+            `.trim();
+
+        alert(instructions);
+      }
+
+      // 검색 기능
+      function initSearch() {
+        const searchInput = document.getElementById('searchInput');
+        const emptyState = document.getElementById('emptyState');
+
+        searchInput.addEventListener('input', function (e) {
+          const searchTerm = e.target.value.toLowerCase().trim();
+          const cards = document.querySelectorAll(
+            '.presentation-card:not(.add-new-card)'
+          );
+          let visibleCount = 0;
+
+          cards.forEach((card) => {
+            const title = card
+              .querySelector('.card-title')
+              .textContent.toLowerCase();
+            const description = card
+              .querySelector('.card-description')
+              .textContent.toLowerCase();
+            const tags = Array.from(card.querySelectorAll('.tag'))
+              .map((tag) => tag.textContent.toLowerCase())
+              .join(' ');
+
+            const isVisible =
+              !searchTerm ||
+              title.includes(searchTerm) ||
+              description.includes(searchTerm) ||
+              tags.includes(searchTerm);
+
+            card.style.display = isVisible ? 'block' : 'none';
+            if (isVisible) visibleCount++;
+          });
+
+          emptyState.style.display =
+            visibleCount === 0 && searchTerm ? 'block' : 'none';
+        });
+      }
+
+      // 통계 업데이트
+      function updateStats() {
+        document.getElementById('totalPresentations').textContent =
+          presentations.length;
+        document.getElementById('totalProjects').textContent =
+          presentations.length;
+
+        // 가장 최근 업데이트 날짜 찾기
+        const latestDate = presentations.reduce((latest, presentation) => {
+          const presentationDate = new Date(presentation.dateTime);
+          return presentationDate > latest ? presentationDate : latest;
+        }, new Date(0));
+
+        const options = {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        };
+        document.getElementById('lastUpdated').textContent =
+          latestDate.toLocaleDateString('en-US', options);
+      }
+
+      // 프레젠테이션 동적 렌더링
+      function renderPresentations() {
+        const grid = document.getElementById('presentationsGrid');
+        const addNewCard = grid.querySelector('.add-new-card');
+
+        // 기존 카드들 제거
+        const existingCards = grid.querySelectorAll(
+          '.presentation-card:not(.add-new-card)'
+        );
+        existingCards.forEach((card) => card.remove());
+
+        // 날짜순으로 정렬 (최신순)
+        const sortedPresentations = presentations.sort(
+          (a, b) => new Date(b.dateTime) - new Date(a.dateTime)
+        );
+
+        // 새 카드들 생성
+        sortedPresentations.forEach((presentation) => {
+          const article = document.createElement('article');
+          article.className = 'presentation-card';
+          article.onclick = () => openPresentation(presentation.filename);
+
+          const statusClass = presentation.status === 'new' ? 'new' : 'updated';
+          const statusText = presentation.status === 'new' ? 'New' : 'Updated';
+
+          article.innerHTML = `
+                    <header class="card-header">
+                        <h2 class="card-title">${presentation.title}</h2>
+                        <time class="card-date" datetime="${
+                          presentation.dateTime
+                        }">${presentation.date}</time>
+                    </header>
+                    <p class="card-description">${presentation.description}</p>
+                    <div class="card-tags">
+                        ${presentation.tags
+                          .map((tag) => `<span class="tag">${tag}</span>`)
+                          .join('')}
+                    </div>
+                    <footer class="card-footer">
+                        <a href="${
+                          presentation.filename
+                        }" class="view-button">View Presentation</a>
+                        <span class="status ${statusClass}">${statusText}</span>
+                    </footer>
+                `;
+
+          grid.insertBefore(article, addNewCard);
+        });
+      }
+
+      // 초기화
+      document.addEventListener('DOMContentLoaded', () => {
+        loadTheme();
+        renderPresentations();
+        updateStats();
+        initSearch();
+      });
+    </script>
+  </body>
+</html>
