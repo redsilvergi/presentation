@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>관리자 대시보드</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          sans-serif;
+        background-color: #f8fafc;
+        color: #1e293b;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* 헤더 */
+      .header {
+        background: white;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 20px 0;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1e293b;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 8px;
+      }
+
+      .tab {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tab.active {
+        background: #3b82f6;
+        color: white;
+      }
+
+      .tab.inactive {
+        background: #f1f5f9;
+        color: #64748b;
+      }
+
+      .tab.inactive:hover {
+        background: #e2e8f0;
+      }
+
+      /* 메인 컨텐츠 */
+      .main {
+        padding: 32px 0;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .btn-primary {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+      }
+
+      .btn-primary:hover {
+        background: #2563eb;
+      }
+
+      /* 필터 섹션 */
+      .filters {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .search-container {
+        flex: 1;
+        min-width: 300px;
+        position: relative;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 12px 16px 12px 40px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .search-input:focus {
+        border-color: #3b82f6;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+      }
+
+      .filter-select {
+        padding: 12px 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        background: white;
+        cursor: pointer;
+      }
+
+      /* 테이블 */
+      .table-container {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        background: #f8fafc;
+        padding: 16px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      td {
+        padding: 16px;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      tr:hover {
+        background: #f8fafc;
+      }
+
+      .user-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .user-username {
+        font-size: 14px;
+        color: #64748b;
+      }
+
+      .user-email {
+        font-size: 14px;
+        color: #64748b;
+      }
+
+      .status-select {
+        padding: 6px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 12px;
+        background: white;
+        cursor: pointer;
+      }
+
+      .status-active {
+        color: #059669;
+        background: #f0fdf4;
+      }
+
+      .status-suspended {
+        color: #dc2626;
+        background: #fef2f2;
+      }
+
+      .status-inactive {
+        color: #6b7280;
+        background: #f9fafb;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .action-btn {
+        padding: 8px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .action-edit {
+        color: #3b82f6;
+        background: #f0f9ff;
+      }
+
+      .action-edit:hover {
+        background: #dbeafe;
+      }
+
+      .action-reset {
+        color: #f59e0b;
+        background: #fffbeb;
+      }
+
+      .action-reset:hover {
+        background: #fef3c7;
+      }
+
+      .action-delete {
+        color: #ef4444;
+        background: #fef2f2;
+      }
+
+      .action-delete:hover {
+        background: #fee2e2;
+      }
+
+      /* 통계 섹션 */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .stat-info h3 {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      .stat-info .value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e293b;
+      }
+
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .icon-blue {
+        background: #dbeafe;
+        color: #3b82f6;
+      }
+      .icon-green {
+        background: #dcfce7;
+        color: #16a34a;
+      }
+      .icon-purple {
+        background: #f3e8ff;
+        color: #a855f7;
+      }
+      .icon-orange {
+        background: #fed7aa;
+        color: #ea580c;
+      }
+
+      .analysis-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+      }
+
+      .analysis-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .analysis-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .analysis-header h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .metric-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      .metric-row:last-child {
+        border-bottom: none;
+      }
+
+      .metric-label {
+        font-size: 14px;
+        color: #64748b;
+      }
+
+      .metric-value {
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .metric-value.positive {
+        color: #16a34a;
+      }
+
+      .export-section {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .export-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .export-btn {
+        padding: 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .export-btn:hover {
+        border-color: #3b82f6;
+        background: #f8fafc;
+      }
+
+      /* 모달 */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 12px;
+        padding: 32px;
+        width: 100%;
+        max-width: 480px;
+        margin: 20px;
+      }
+
+      .modal-header {
+        margin-bottom: 24px;
+      }
+
+      .modal-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .form-input:focus {
+        border-color: #3b82f6;
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 32px;
+      }
+
+      .btn-secondary {
+        background: #f1f5f9;
+        color: #64748b;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        flex: 1;
+      }
+
+      .btn-secondary:hover {
+        background: #e2e8f0;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      /* 아이콘 스타일 */
+      .icon {
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+      }
+
+      /* 반응형 */
+      @media (max-width: 768px) {
+        .filters {
+          flex-direction: column;
+        }
+
+        .search-container {
+          min-width: auto;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .analysis-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .export-grid {
+          grid-template-columns: 1fr;
+        }
+
+        table {
+          font-size: 14px;
+        }
+
+        th,
+        td {
+          padding: 12px 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 헤더 -->
+    <div class="header">
+      <div class="container">
+        <div class="header-content">
+          <h1>관리자 대시보드</h1>
+          <div class="tabs">
+            <button class="tab active" id="usersTab">
+              <span class="icon">👥</span>
+              사용자 관리
+            </button>
+            <button class="tab inactive" id="analyticsTab">
+              <span class="icon">📊</span>
+              통계 및 분석
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="main">
+      <div class="container">
+        <!-- 사용자 관리 탭 -->
+        <div id="usersContent">
+          <div class="section-header">
+            <h2 class="section-title">사용자 관리</h2>
+            <button class="btn-primary" id="addUserBtn">
+              <span class="icon">➕</span>
+              새 사용자 추가
+            </button>
+          </div>
+
+          <!-- 필터 -->
+          <div class="filters">
+            <div class="search-container">
+              <input
+                type="text"
+                class="search-input"
+                id="searchInput"
+                placeholder="사용자명, 이메일, 이름으로 검색..."
+              />
+              <span class="search-icon">🔍</span>
+            </div>
+            <select class="filter-select" id="roleFilter">
+              <option value="all">모든 역할</option>
+              <option value="admin">관리자</option>
+              <option value="user">일반 사용자</option>
+              <option value="moderator">모더레이터</option>
+            </select>
+            <select class="filter-select" id="statusFilter">
+              <option value="all">모든 상태</option>
+              <option value="active">활성</option>
+              <option value="inactive">비활성</option>
+              <option value="suspended">정지</option>
+            </select>
+          </div>
+
+          <!-- 사용자 테이블 -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>사용자</th>
+                  <th>역할</th>
+                  <th>상태</th>
+                  <th>마지막 로그인</th>
+                  <th>로그인 횟수</th>
+                  <th>작업</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody">
+                <!-- 동적으로 생성 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 통계 및 분석 탭 -->
+        <div id="analyticsContent" class="hidden">
+          <div class="section-header">
+            <h2 class="section-title">통계 및 분석</h2>
+          </div>
+
+          <!-- 주요 지표 -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-info">
+                <h3>전체 사용자</h3>
+                <div class="value">1,250</div>
+              </div>
+              <div class="stat-icon icon-blue">
+                <span class="icon">👥</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <h3>활성 사용자</h3>
+                <div class="value">1,180</div>
+              </div>
+              <div class="stat-icon icon-green">
+                <span class="icon">✅</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <h3>오늘 신규 가입</h3>
+                <div class="value">23</div>
+              </div>
+              <div class="stat-icon icon-purple">
+                <span class="icon">📈</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <h3>오늘 로그인</h3>
+                <div class="value">345</div>
+              </div>
+              <div class="stat-icon icon-orange">
+                <span class="icon">⚡</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 분석 카드 -->
+          <div class="analysis-grid">
+            <div class="analysis-card">
+              <div class="analysis-header">
+                <h3>사용자 활동 분석</h3>
+                <button class="action-btn action-edit">📥</button>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">주간 성장률</span>
+                <span class="metric-value positive">+8.5%</span>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">월간 활성 사용자</span>
+                <span class="metric-value">1,003</span>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">평균 세션 시간</span>
+                <span class="metric-value">8분 32초</span>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">페이지뷰/세션</span>
+                <span class="metric-value">4.2</span>
+              </div>
+            </div>
+
+            <div class="analysis-card">
+              <div class="analysis-header">
+                <h3>트래픽 분석</h3>
+                <select class="filter-select">
+                  <option>지난 7일</option>
+                  <option>지난 30일</option>
+                  <option>지난 3개월</option>
+                </select>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">총 방문수</span>
+                <span class="metric-value">23,450</span>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">순 방문자</span>
+                <span class="metric-value">18,320</span>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">이탈률</span>
+                <span class="metric-value">35.2%</span>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">모바일 비율</span>
+                <span class="metric-value">68.5%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 데이터 내보내기 -->
+          <div class="export-section">
+            <h3>데이터 내보내기</h3>
+            <div class="export-grid">
+              <button class="export-btn">
+                <span class="icon">📥</span>
+                사용자 리스트 (CSV)
+              </button>
+              <button class="export-btn">
+                <span class="icon">📥</span>
+                활동 로그 (Excel)
+              </button>
+              <button class="export-btn">
+                <span class="icon">📥</span>
+                통계 리포트 (PDF)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 사용자 모달 -->
+    <div class="modal" id="userModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modalTitle">새 사용자 생성</h3>
+        </div>
+        <form id="userForm">
+          <div class="form-group">
+            <label class="form-label">사용자명</label>
+            <input
+              type="text"
+              class="form-input"
+              id="username"
+              name="username"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">이메일</label>
+            <input
+              type="email"
+              class="form-input"
+              id="email"
+              name="email"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">이름</label>
+            <input
+              type="text"
+              class="form-input"
+              id="name"
+              name="name"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">역할</label>
+            <select class="form-input" id="role" name="role">
+              <option value="user">일반 사용자</option>
+              <option value="admin">관리자</option>
+              <option value="moderator">모더레이터</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">상태</label>
+            <select class="form-input" id="status" name="status">
+              <option value="active">활성</option>
+              <option value="inactive">비활성</option>
+              <option value="suspended">정지</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="cancelBtn">
+              취소
+            </button>
+            <button type="submit" class="btn-primary">저장</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // 초기 데이터
+      let users = [
+        {
+          id: 1,
+          username: 'john_doe',
+          email: 'john@example.com',
+          name: '홍길동',
+          role: 'user',
+          status: 'active',
+          lastLogin: '2025-06-04 14:30',
+          loginCount: 45,
+        },
+        {
+          id: 2,
+          username: 'admin_user',
+          email: 'admin@example.com',
+          name: '관리자',
+          role: 'admin',
+          status: 'active',
+          lastLogin: '2025-06-04 09:15',
+          loginCount: 120,
+        },
+        {
+          id: 3,
+          username: 'test_user',
+          email: 'test@example.com',
+          name: '테스트유저',
+          role: 'user',
+          status: 'suspended',
+          lastLogin: '2025-05-28 16:45',
+          loginCount: 23,
+        },
+        {
+          id: 4,
+          username: 'chulmin',
+          email: 'euals@gmail.com',
+          name: '김철민',
+          role: 'moderator',
+          status: 'active',
+          lastLogin: '-',
+          loginCount: 0,
+        },
+      ];
+
+      let currentEditingUserId = null;
+
+      // DOM 요소
+      const usersTab = document.getElementById('usersTab');
+      const analyticsTab = document.getElementById('analyticsTab');
+      const usersContent = document.getElementById('usersContent');
+      const analyticsContent = document.getElementById('analyticsContent');
+      const addUserBtn = document.getElementById('addUserBtn');
+      const userModal = document.getElementById('userModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const userForm = document.getElementById('userForm');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const searchInput = document.getElementById('searchInput');
+      const roleFilter = document.getElementById('roleFilter');
+      const statusFilter = document.getElementById('statusFilter');
+      const userTableBody = document.getElementById('userTableBody');
+
+      // 탭 전환
+      function switchTab(tab) {
+        if (tab === 'users') {
+          usersTab.className = 'tab active';
+          analyticsTab.className = 'tab inactive';
+          usersContent.classList.remove('hidden');
+          analyticsContent.classList.add('hidden');
+        } else {
+          analyticsTab.className = 'tab active';
+          usersTab.className = 'tab inactive';
+          analyticsContent.classList.remove('hidden');
+          usersContent.classList.add('hidden');
+        }
+      }
+
+      // 사용자 테이블 렌더링
+      function renderUsers() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const roleFilterValue = roleFilter.value;
+        const statusFilterValue = statusFilter.value;
+
+        const filteredUsers = users.filter((user) => {
+          const matchesSearch =
+            user.username.toLowerCase().includes(searchTerm) ||
+            user.email.toLowerCase().includes(searchTerm) ||
+            user.name.includes(searchTerm);
+          const matchesRole =
+            roleFilterValue === 'all' || user.role === roleFilterValue;
+          const matchesStatus =
+            statusFilterValue === 'all' || user.status === statusFilterValue;
+          return matchesSearch && matchesRole && matchesStatus;
+        });
+
+        userTableBody.innerHTML = filteredUsers
+          .map(
+            (user) => `
+                <tr>
+                    <td>
+                        <div class="user-info">
+                            <div class="user-name">${user.name}</div>
+                            <div class="user-username">@${user.username}</div>
+                            <div class="user-email">${user.email}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="status-select" onchange="updateUserRole(${
+                          user.id
+                        }, this.value)">
+                            <option value="user" ${
+                              user.role === 'user' ? 'selected' : ''
+                            }>일반 사용자</option>
+                            <option value="admin" ${
+                              user.role === 'admin' ? 'selected' : ''
+                            }>관리자</option>
+                            <option value="moderator" ${
+                              user.role === 'moderator' ? 'selected' : ''
+                            }>모더레이터</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="status-select status-${
+                          user.status
+                        }" onchange="updateUserStatus(${user.id}, this.value)">
+                            <option value="active" ${
+                              user.status === 'active' ? 'selected' : ''
+                            }>활성</option>
+                            <option value="inactive" ${
+                              user.status === 'inactive' ? 'selected' : ''
+                            }>비활성</option>
+                            <option value="suspended" ${
+                              user.status === 'suspended' ? 'selected' : ''
+                            }>정지</option>
+                        </select>
+                    </td>
+                    <td>${user.lastLogin}</td>
+                    <td>${user.loginCount}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="action-btn action-edit" onclick="editUser(${
+                              user.id
+                            })" title="수정">✏️</button>
+                            <button class="action-btn action-reset" onclick="resetPassword(${
+                              user.id
+                            })" title="비밀번호 초기화">🔄</button>
+                            <button class="action-btn action-delete" onclick="deleteUser(${
+                              user.id
+                            })" title="삭제">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `
+          )
+          .join('');
+      }
+
+      // 사용자 상태 업데이트
+      function updateUserStatus(userId, newStatus) {
+        users = users.map((user) =>
+          user.id === userId ? { ...user, status: newStatus } : user
+        );
+        renderUsers();
+      }
+
+      // 사용자 역할 업데이트
+      function updateUserRole(userId, newRole) {
+        users = users.map((user) =>
+          user.id === userId ? { ...user, role: newRole } : user
+        );
+        renderUsers();
+      }
+
+      // 사용자 삭제
+      function deleteUser(userId) {
+        if (confirm('정말 이 사용자를 삭제하시겠습니까?')) {
+          users = users.filter((user) => user.id !== userId);
+          renderUsers();
+        }
+      }
+
+      // 비밀번호 초기화
+      function resetPassword(userId) {
+        if (confirm('이 사용자의 비밀번호를 초기화하시겠습니까?')) {
+          alert(
+            '비밀번호가 초기화되었습니다. 임시 비밀번호가 이메일로 발송됩니다.'
+          );
+        }
+      }
+
+      // 사용자 편집
+      function editUser(userId) {
+        const user = users.find((u) => u.id === userId);
+        if (user) {
+          currentEditingUserId = userId;
+          modalTitle.textContent = '사용자 수정';
+          document.getElementById('username').value = user.username;
+          document.getElementById('email').value = user.email;
+          document.getElementById('name').value = user.name;
+          document.getElementById('role').value = user.role;
+          document.getElementById('status').value = user.status;
+          showModal();
+        }
+      }
+
+      // 모달 표시
+      function showModal() {
+        userModal.style.display = 'flex';
+      }
+
+      // 모달 숨기기
+      function hideModal() {
+        userModal.style.display = 'none';
+        currentEditingUserId = null;
+        userForm.reset();
+        modalTitle.textContent = '새 사용자 생성';
+      }
+
+      // 이벤트 리스너
+      usersTab.addEventListener('click', () => switchTab('users'));
+      analyticsTab.addEventListener('click', () => switchTab('analytics'));
+      addUserBtn.addEventListener('click', showModal);
+      cancelBtn.addEventListener('click', hideModal);
+      searchInput.addEventListener('input', renderUsers);
+      roleFilter.addEventListener('change', renderUsers);
+      statusFilter.addEventListener('change', renderUsers);
+
+      // 모달 외부 클릭 시 닫기
+      userModal.addEventListener('click', (e) => {
+        if (e.target === userModal) {
+          hideModal();
+        }
+      });
+
+      // 폼 제출
+      userForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(userForm);
+        const userData = {
+          username: formData.get('username'),
+          email: formData.get('email'),
+          name: formData.get('name'),
+          role: formData.get('role'),
+          status: formData.get('status'),
+        };
+
+        if (currentEditingUserId) {
+          // 수정
+          users = users.map((user) =>
+            user.id === currentEditingUserId ? { ...user, ...userData } : user
+          );
+        } else {
+          // 새 사용자 추가
+          const newUser = {
+            ...userData,
+            id: Math.max(...users.map((u) => u.id)) + 1,
+            lastLogin: '-',
+            loginCount: 0,
+          };
+          users.push(newUser);
+        }
+
+        renderUsers();
+        hideModal();
+      });
+
+      // 초기 렌더링
+      renderUsers();
+    </script>
+  </body>
+</html>
