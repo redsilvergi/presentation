@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seoul LivePop Intelligence Interface</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont,
+          'Segoe UI', sans-serif;
+        background: #000;
+        color: #ffffff;
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .background-map {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0a0a0b;
+        z-index: -3;
+      }
+
+      .map-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            135deg,
+            rgba(10, 10, 11, 0.7) 0%,
+            rgba(15, 20, 30, 0.6) 100%
+          ),
+          url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(0,150,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/><g stroke="rgba(0,200,255,0.3)" stroke-width="1" fill="none"><path d="M200,300 Q400,250 600,300 T1000,350"/><path d="M150,200 L250,180 L350,220 L450,200 L550,240 L650,210 L750,250 L850,230 L950,270 L1050,250"/><path d="M100,400 Q300,350 500,400 Q700,450 900,400 Q1100,350 1200,400"/></g><g fill="rgba(0,255,150,0.4)" stroke="rgba(0,255,150,0.6)" stroke-width="1"><circle cx="300" cy="250" r="3"><animate attributeName="r" values="3;6;3" dur="4s" repeatCount="indefinite"/></circle><circle cx="500" cy="300" r="4"><animate attributeName="r" values="4;7;4" dur="3s" repeatCount="indefinite"/></circle><circle cx="700" cy="280" r="3"><animate attributeName="r" values="3;5;3" dur="5s" repeatCount="indefinite"/></circle><circle cx="800" cy="350" r="5"><animate attributeName="r" values="5;8;5" dur="3.5s" repeatCount="indefinite"/></circle></g><g fill="rgba(255,150,0,0.3)" stroke="rgba(255,150,0,0.5)" stroke-width="1"><rect x="400" y="200" width="80" height="60" rx="4"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="6s" repeatCount="indefinite"/></rect><rect x="600" y="320" width="70" height="50" rx="4"><animate attributeName="opacity" values="0.3;0.6;0.3" dur="4s" repeatCount="indefinite"/></rect><rect x="250" y="350" width="60" height="45" rx="4"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="5s" repeatCount="indefinite"/></rect></g><g stroke="rgba(0,200,255,0.4)" stroke-width="2" fill="none"><path d="M50,500 Q200,450 350,500 Q500,550 650,500 Q800,450 950,500 Q1100,550 1200,500"><animate attributeName="stroke-dasharray" values="0,1000;1000,0;0,1000" dur="8s" repeatCount="indefinite"/></path></g><text x="300" y="270" fill="rgba(255,255,255,0.3)" font-size="8" font-family="monospace">강남구</text><text x="500" y="320" fill="rgba(255,255,255,0.3)" font-size="8" font-family="monospace">종로구</text><text x="700" y="300" fill="rgba(255,255,255,0.3)" font-size="8" font-family="monospace">마포구</text><text x="800" y="370" fill="rgba(255,255,255,0.3)" font-size="8" font-family="monospace">송파구</text><text x="250" y="375" fill="rgba(255,255,255,0.3)" font-size="8" font-family="monospace">영등포구</text></svg>');
+        background-size: cover;
+        background-position: center;
+        z-index: -2;
+        opacity: 0.8;
+      }
+
+      .map-overlay-effects {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at 30% 40%,
+            rgba(0, 255, 150, 0.05) 0%,
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 70% 60%,
+            rgba(0, 150, 255, 0.05) 0%,
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 50% 30%,
+            rgba(255, 150, 0, 0.03) 0%,
+            transparent 25%
+          );
+        z-index: -1;
+        animation: mapPulse 12s ease-in-out infinite;
+      }
+
+      @keyframes mapPulse {
+        0%,
+        100% {
+          opacity: 0.6;
+        }
+        50% {
+          opacity: 0.9;
+        }
+      }
+
+      .app-container {
+        position: relative;
+        height: 100vh;
+        display: grid;
+        grid-template-rows: auto 1fr;
+        z-index: 10;
+      }
+
+      .header {
+        background: rgba(0, 10, 20, 0.4);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(0, 150, 255, 0.2);
+        padding: 16px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(
+          45deg,
+          rgba(0, 200, 255, 0.8),
+          rgba(0, 150, 255, 0.6)
+        );
+        border: 1px solid rgba(0, 200, 255, 0.5);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 12px;
+        box-shadow: 0 0 15px rgba(0, 200, 255, 0.3);
+      }
+
+      .logo h1 {
+        font-size: 18px;
+        font-weight: 300;
+        color: #ffffff;
+        letter-spacing: 1px;
+        text-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
+      }
+
+      .status-display {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        font-family: 'SF Mono', monospace;
+        font-size: 12px;
+      }
+
+      .time-display {
+        color: rgba(0, 200, 255, 0.8);
+        text-shadow: 0 0 5px rgba(0, 200, 255, 0.3);
+      }
+
+      .live-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(0, 255, 150, 0.9);
+      }
+
+      .pulse-dot {
+        width: 6px;
+        height: 6px;
+        background: #00ff96;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #00ff96;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.3;
+          transform: scale(1.2);
+        }
+      }
+
+      .main-interface {
+        position: relative;
+        height: 100%;
+        padding: 20px;
+      }
+
+      .floating-panel {
+        position: absolute;
+        background: rgba(0, 10, 25, 0.15);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(0, 150, 255, 0.2);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+
+      .stats-panel {
+        top: 20px;
+        left: 20px;
+        width: 320px;
+        padding: 24px;
+      }
+
+      .stats-title {
+        font-size: 11px;
+        color: rgba(0, 200, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        text-shadow: 0 0 5px rgba(0, 200, 255, 0.3);
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .metric-item {
+        text-align: center;
+        padding: 16px;
+        background: rgba(0, 20, 40, 0.3);
+        border: 1px solid rgba(0, 150, 255, 0.15);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .metric-item:hover {
+        border-color: rgba(0, 200, 255, 0.4);
+        box-shadow: 0 0 20px rgba(0, 200, 255, 0.1);
+      }
+
+      .metric-value {
+        font-size: 24px;
+        font-weight: 200;
+        color: #ffffff;
+        margin-bottom: 4px;
+        font-family: 'SF Mono', monospace;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+      }
+
+      .metric-label {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .controls-panel {
+        top: 20px;
+        right: 20px;
+        width: 280px;
+        padding: 24px;
+      }
+
+      .control-section {
+        margin-bottom: 24px;
+      }
+
+      .control-title {
+        font-size: 10px;
+        color: rgba(0, 200, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 8px;
+      }
+
+      .glass-btn {
+        flex: 1;
+        padding: 10px 16px;
+        background: rgba(0, 30, 60, 0.3);
+        border: 1px solid rgba(0, 150, 255, 0.3);
+        border-radius: 6px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 11px;
+        font-weight: 400;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .glass-btn.active {
+        background: rgba(0, 150, 255, 0.2);
+        border-color: rgba(0, 200, 255, 0.6);
+        color: #ffffff;
+        box-shadow: 0 0 15px rgba(0, 200, 255, 0.2);
+      }
+
+      .glass-btn:hover:not(.active) {
+        border-color: rgba(0, 200, 255, 0.5);
+        box-shadow: 0 0 10px rgba(0, 150, 255, 0.1);
+      }
+
+      .search-field {
+        width: 100%;
+        padding: 12px 16px;
+        background: rgba(0, 20, 40, 0.4);
+        border: 1px solid rgba(0, 150, 255, 0.3);
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 12px;
+        outline: none;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .search-field:focus {
+        border-color: rgba(0, 200, 255, 0.6);
+        box-shadow: 0 0 20px rgba(0, 200, 255, 0.1);
+      }
+
+      .search-field::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      .chat-panel {
+        bottom: 20px;
+        right: 20px;
+        width: 400px;
+        height: 350px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-header {
+        padding: 16px 20px;
+        background: rgba(0, 20, 40, 0.4);
+        border-bottom: 1px solid rgba(0, 150, 255, 0.2);
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .ai-status {
+        width: 8px;
+        height: 8px;
+        background: #00ff96;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #00ff96;
+        animation: pulse 2s infinite;
+      }
+
+      .chat-title {
+        font-size: 11px;
+        color: rgba(0, 200, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .chat-messages {
+        flex: 1;
+        padding: 16px 20px;
+        overflow-y: auto;
+        background: rgba(0, 10, 25, 0.2);
+      }
+
+      .message {
+        margin-bottom: 16px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        line-height: 1.5;
+        backdrop-filter: blur(10px);
+      }
+
+      .message.user {
+        background: rgba(0, 100, 200, 0.15);
+        border: 1px solid rgba(0, 150, 255, 0.3);
+        color: rgba(255, 255, 255, 0.9);
+        margin-left: 40px;
+        border-radius: 16px 16px 4px 16px;
+      }
+
+      .message.ai {
+        background: rgba(0, 30, 60, 0.15);
+        border: 1px solid rgba(0, 200, 255, 0.2);
+        color: rgba(255, 255, 255, 0.85);
+        margin-right: 40px;
+        border-radius: 16px 16px 16px 4px;
+      }
+
+      .chat-input-area {
+        padding: 16px 20px;
+        background: rgba(0, 20, 40, 0.4);
+        border-top: 1px solid rgba(0, 150, 255, 0.2);
+        border-radius: 0 0 12px 12px;
+      }
+
+      .chat-input {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .chat-input input {
+        flex: 1;
+        padding: 10px 16px;
+        background: rgba(0, 30, 60, 0.4);
+        border: 1px solid rgba(0, 150, 255, 0.3);
+        border-radius: 20px;
+        color: #ffffff;
+        font-size: 12px;
+        outline: none;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .chat-input input:focus {
+        border-color: rgba(0, 200, 255, 0.6);
+        box-shadow: 0 0 15px rgba(0, 200, 255, 0.1);
+      }
+
+      .chat-input input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      .send-btn {
+        width: 36px;
+        height: 36px;
+        background: rgba(0, 150, 255, 0.3);
+        border: 1px solid rgba(0, 200, 255, 0.5);
+        border-radius: 50%;
+        color: #ffffff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .send-btn:hover {
+        background: rgba(0, 200, 255, 0.4);
+        box-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
+        transform: scale(1.05);
+      }
+
+      .analysis-panel {
+        bottom: 20px;
+        left: 20px;
+        width: 350px;
+        height: 200px;
+        padding: 20px;
+      }
+
+      .analysis-title {
+        font-size: 11px;
+        color: rgba(0, 200, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 16px;
+      }
+
+      .trend-visualization {
+        height: 120px;
+        background: rgba(0, 20, 40, 0.3);
+        border: 1px solid rgba(0, 150, 255, 0.2);
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .trend-line {
+        position: absolute;
+        bottom: 20px;
+        left: 10px;
+        right: 10px;
+        height: 60px;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(0, 255, 150, 0.2),
+          rgba(0, 200, 255, 0.2),
+          transparent
+        );
+        border-top: 2px solid rgba(0, 200, 255, 0.6);
+        border-radius: 2px;
+        animation: dataFlow 4s ease-in-out infinite;
+      }
+
+      @keyframes dataFlow {
+        0%,
+        100% {
+          opacity: 0.6;
+          transform: scaleY(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scaleY(1.1);
+        }
+      }
+
+      .data-points {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+
+      .data-point {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: #00ff96;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #00ff96;
+        animation: pointPulse 3s ease-in-out infinite;
+      }
+
+      .point-1 {
+        top: 40%;
+        left: 20%;
+        animation-delay: 0s;
+      }
+      .point-2 {
+        top: 25%;
+        left: 40%;
+        animation-delay: 0.5s;
+      }
+      .point-3 {
+        top: 35%;
+        left: 60%;
+        animation-delay: 1s;
+      }
+      .point-4 {
+        top: 20%;
+        left: 80%;
+        animation-delay: 1.5s;
+      }
+
+      @keyframes pointPulse {
+        0%,
+        100% {
+          opacity: 0.6;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.5);
+        }
+      }
+
+      .legend-panel {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        text-align: center;
+      }
+
+      .legend-title {
+        font-size: 10px;
+        color: rgba(0, 200, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 16px;
+      }
+
+      .legend-items {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .legend-color {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        box-shadow: 0 0 8px currentColor;
+      }
+
+      .coordinates-display {
+        position: absolute;
+        top: 50%;
+        right: 50px;
+        background: rgba(0, 10, 25, 0.2);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 150, 255, 0.2);
+        border-radius: 6px;
+        padding: 12px;
+        font-family: 'SF Mono', monospace;
+        font-size: 10px;
+        color: rgba(0, 200, 255, 0.8);
+        text-align: right;
+      }
+
+      .typing-indicator {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        color: rgba(255, 255, 255, 0.5);
+        font-style: italic;
+        padding: 8px 16px;
+        font-size: 11px;
+      }
+
+      .typing-dots {
+        display: flex;
+        gap: 3px;
+      }
+
+      .typing-dot {
+        width: 3px;
+        height: 3px;
+        background: rgba(0, 200, 255, 0.6);
+        border-radius: 50%;
+        animation: typing 1.4s infinite;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes typing {
+        0%,
+        60%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.4;
+        }
+        30% {
+          transform: translateY(-6px);
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 1400px) {
+        .floating-panel {
+          position: relative;
+          margin: 10px;
+        }
+
+        .main-interface {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding: 10px;
+        }
+
+        .stats-panel,
+        .controls-panel,
+        .chat-panel,
+        .analysis-panel {
+          position: relative;
+          top: auto;
+          left: auto;
+          right: auto;
+          bottom: auto;
+          width: 100%;
+          max-width: 400px;
+          margin: 0 auto;
+        }
+      }
+
+      /* Scrollbar styling */
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(0, 20, 40, 0.2);
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(0, 150, 255, 0.3);
+        border-radius: 2px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 200, 255, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="background-map"></div>
+    <div class="map-container"></div>
+    <div class="map-overlay-effects"></div>
+
+    <div class="app-container">
+      <header class="header">
+        <div class="logo">
+          <div class="logo-icon">SL</div>
+          <h1>Seoul LivePop Intelligence Interface</h1>
+        </div>
+        <div class="status-display">
+          <div class="time-display" id="currentTime">2025.06.10 14:30:45</div>
+          <div class="live-indicator">
+            <div class="pulse-dot"></div>
+            <span>LIVE STREAM</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-interface">
+        <div class="floating-panel stats-panel">
+          <div class="stats-title">Real-time Population Metrics</div>
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <div class="metric-value">2.4M</div>
+              <div class="metric-label">Active Population</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-value">+12.4%</div>
+              <div class="metric-label">Growth Rate</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-value">1,247</div>
+              <div class="metric-label">Peak Density</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-value">96.8%</div>
+              <div class="metric-label">Prediction Accuracy</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-panel controls-panel">
+          <div class="control-section">
+            <input
+              type="text"
+              class="search-field"
+              placeholder="Search districts, coordinates..."
+            />
+          </div>
+
+          <div class="control-section">
+            <div class="control-title">Temporal Analysis</div>
+            <div class="button-group">
+              <button class="glass-btn active">Real-time</button>
+              <button class="glass-btn">Prediction</button>
+              <button class="glass-btn">Historical</button>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="control-title">Time Window</div>
+            <div class="button-group">
+              <button class="glass-btn">1H</button>
+              <button class="glass-btn active">4H</button>
+              <button class="glass-btn">24H</button>
+            </div>
+          </div>
+
+          <div class="control-section">
+            <div class="control-title">Data Layer</div>
+            <div class="button-group">
+              <button class="glass-btn active">Density</button>
+              <button class="glass-btn">Flow</button>
+              <button class="glass-btn">Patterns</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-panel legend-panel">
+          <div class="legend-title">Population Density Mapping</div>
+          <div class="legend-items">
+            <div class="legend-item">
+              <div
+                class="legend-color"
+                style="background: #00ff96; color: #00ff96"
+              ></div>
+              <span>Critical (2000+)</span>
+            </div>
+            <div class="legend-item">
+              <div
+                class="legend-color"
+                style="background: #00c8ff; color: #00c8ff"
+              ></div>
+              <span>High (1000-2000)</span>
+            </div>
+            <div class="legend-item">
+              <div
+                class="legend-color"
+                style="background: #ff9600; color: #ff9600"
+              ></div>
+              <span>Medium (500-1000)</span>
+            </div>
+            <div class="legend-item">
+              <div
+                class="legend-color"
+                style="background: #ff6496; color: #ff6496"
+              ></div>
+              <span>Low (<500)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="coordinates-display">
+          LAT: 37.5665<br />
+          LON: 126.9780<br />
+          GRID: 2847<br />
+          ZOOM: 12
+        </div>
+
+        <div class="floating-panel chat-panel">
+          <div class="chat-header">
+            <div class="ai-status"></div>
+            <div class="chat-title">AI Intelligence Assistant</div>
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="message ai">
+              Population intelligence system initialized. Ready for pattern
+              analysis and predictive modeling queries.
+            </div>
+            <div class="message user">
+              강남구 집계구 2847의 오후 시간대 인구 급증 패턴 분석해줘
+            </div>
+            <div class="message ai">
+              Analysis complete. Gangnam-gu Grid 2847 afternoon surge patterns
+              identified:<br /><br />
+              • Business district transition: +34% (14:00-15:00)<br />
+              • Event correlation (COEX): +28%<br />
+              • Weather optimization factor: +15%<br />
+              • Transit hub confluence: +23%<br /><br />
+              Prediction confidence: 96.8%<br />
+              Estimated duration: Until 18:00
+            </div>
+          </div>
+          <div class="typing-indicator" id="typingIndicator">
+            <span>Processing query...</span>
+            <div class="typing-dots">
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <div class="chat-input">
+              <input
+                type="text"
+                placeholder="Enter intelligence query..."
+                id="chatInput"
+              />
+              <button class="send-btn" onclick="sendMessage()">→</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-panel analysis-panel">
+          <div class="analysis-title">Population Flow Trends</div>
+          <div class="trend-visualization">
+            <div class="trend-line"></div>
+            <div class="data-points">
+              <div class="data-point point-1"></div>
+              <div class="data-point point-2"></div>
+              <div class="data-point point-3"></div>
+              <div class="data-point point-4"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const messages = document.getElementById('chatMessages');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        if (input.value.trim() === '') return;
+
+        const userMessage = document.createElement('div');
+        userMessage.className = 'message user';
+        userMessage.textContent = input.value;
+        messages.appendChild(userMessage);
+
+        typingIndicator.style.display = 'flex';
+        messages.scrollTop = messages.scrollHeight;
+
+        setTimeout(() => {
+          typingIndicator.style.display = 'none';
+
+          const aiMessage = document.createElement('div');
+          aiMessage.className = 'message ai';
+          aiMessage.innerHTML = `Intelligence analysis processed for "${input.value}"<br><br>Cross-referencing real-time population data with predictive models. Confidence interval: 94.7%. Additional pattern recognition available for deeper investigation.`;
+          messages.appendChild(aiMessage);
+
+          messages.scrollTop = messages.scrollHeight;
+        }, 2500);
+
+        input.value = '';
+      }
+
+      document
+        .getElementById('chatInput')
+        .addEventListener('keypress', function (e) {
+          if (e.key === 'Enter') {
+            sendMessage();
+          }
+        });
+
+      // Button interactions
+      document.querySelectorAll('.glass-btn').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          const group = this.parentElement;
+          const currentActive = group.querySelector('.glass-btn.active');
+          if (currentActive) currentActive.classList.remove('active');
+          this.classList.add('active');
+        });
+      });
+
+      // Real-time clock
+      function updateTime() {
+        const now = new Date();
+        const timeString = `${now.getFullYear()}.${String(
+          now.getMonth() + 1
+        ).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(
+          now.getHours()
+        ).padStart(2, '0')}:${String(now.getMinutes()).padStart(
+          2,
+          '0'
+        )}:${String(now.getSeconds()).padStart(2, '0')}`;
+        document.getElementById('currentTime').textContent = timeString;
+      }
+
+      setInterval(updateTime, 1000);
+      updateTime();
+
+      // Real-time data simulation
+      setInterval(() => {
+        const metricValues = document.querySelectorAll('.metric-value');
+        metricValues.forEach((metric) => {
+          if (metric.textContent.includes('M')) {
+            const num = parseFloat(metric.textContent);
+            metric.textContent =
+              (num + (Math.random() - 0.5) * 0.1).toFixed(1) + 'M';
+          } else if (metric.textContent.includes('%')) {
+            const num = parseFloat(metric.textContent);
+            metric.textContent =
+              (num + (Math.random() - 0.5) * 0.3).toFixed(1) + '%';
+          } else if (!isNaN(parseFloat(metric.textContent.replace(',', '')))) {
+            const num = parseFloat(metric.textContent.replace(',', ''));
+            metric.textContent = Math.floor(
+              num + (Math.random() - 0.5) * 50
+            ).toLocaleString();
+          }
+        });
+      }, 4000);
+
+      // Coordinate simulation
+      setInterval(() => {
+        const coords = document.querySelector('.coordinates-display');
+        const lat = 37.5665 + (Math.random() - 0.5) * 0.01;
+        const lon = 126.978 + (Math.random() - 0.5) * 0.01;
+        const grid = Math.floor(2847 + (Math.random() - 0.5) * 100);
+        coords.innerHTML = `LAT: ${lat.toFixed(4)}<br>LON: ${lon.toFixed(
+          4
+        )}<br>GRID: ${grid}<br>ZOOM: 12`;
+      }, 6000);
+
+      // District glow effect on hover
+      document.querySelectorAll('.district').forEach((district) => {
+        district.addEventListener('mouseenter', function () {
+          this.style.boxShadow = '0 0 60px rgba(0, 200, 255, 0.4)';
+          this.style.transform = 'scale(1.05)';
+        });
+
+        district.addEventListener('mouseleave', function () {
+          this.style.boxShadow = '';
+          this.style.transform = '';
+        });
+      });
+
+      // Floating panel drag effect (basic)
+      document.querySelectorAll('.floating-panel').forEach((panel) => {
+        panel.addEventListener('mousedown', function (e) {
+          this.style.transform = 'scale(0.98)';
+          this.style.transition = 'transform 0.1s ease';
+        });
+
+        panel.addEventListener('mouseup', function (e) {
+          this.style.transform = '';
+          this.style.transition = 'transform 0.3s ease';
+        });
+      });
+    </script>
+  </body>
+</html>

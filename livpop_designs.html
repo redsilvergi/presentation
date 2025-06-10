@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seoul LivePop - Design Showcase</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #ffffff;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      .hero-section {
+        padding: 80px 0 60px 0;
+        text-align: center;
+        background: linear-gradient(
+          135deg,
+          rgba(59, 130, 246, 0.1) 0%,
+          rgba(139, 92, 246, 0.1) 100%
+        );
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      .hero-title {
+        font-size: clamp(3rem, 6vw, 4.5rem);
+        font-weight: 700;
+        margin-bottom: 24px;
+        background: linear-gradient(135deg, #ffffff 0%, #60a5fa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -0.02em;
+      }
+
+      .hero-subtitle {
+        font-size: 1.25rem;
+        color: #cbd5e1;
+        margin-bottom: 16px;
+        font-weight: 400;
+      }
+
+      .hero-description {
+        font-size: 1rem;
+        color: #94a3b8;
+        max-width: 600px;
+        margin: 0 auto 40px auto;
+        line-height: 1.6;
+      }
+
+      .project-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 24px;
+        margin: 60px 0;
+        padding: 0 24px;
+      }
+
+      .info-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+      }
+
+      .info-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(59, 130, 246, 0.3);
+        transform: translateY(-4px);
+      }
+
+      .info-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #60a5fa;
+        margin-bottom: 8px;
+      }
+
+      .info-label {
+        font-size: 14px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .designs-section {
+        padding: 60px 0;
+      }
+
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 48px;
+        color: #ffffff;
+      }
+
+      .designs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 32px;
+        margin-bottom: 60px;
+      }
+
+      .design-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+      }
+
+      .design-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(59, 130, 246, 0.4);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      .design-preview {
+        height: 250px;
+        background: linear-gradient(135deg, #1e293b, #334155);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .design-preview::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(59, 130, 246, 0.1),
+          transparent
+        );
+        animation: shimmer 3s ease-in-out infinite;
+      }
+
+      @keyframes shimmer {
+        0%,
+        100% {
+          transform: translateX(-100%);
+        }
+        50% {
+          transform: translateX(100%);
+        }
+      }
+
+      .preview-content {
+        text-align: center;
+        z-index: 2;
+        position: relative;
+      }
+
+      .preview-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+        opacity: 0.7;
+      }
+
+      .preview-text {
+        color: #cbd5e1;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .design-content {
+        padding: 24px;
+      }
+
+      .design-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 8px;
+      }
+
+      .design-style {
+        font-size: 12px;
+        color: #60a5fa;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 12px;
+        font-weight: 600;
+      }
+
+      .design-description {
+        color: #94a3b8;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 20px;
+      }
+
+      .design-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .feature-tag {
+        background: rgba(59, 130, 246, 0.1);
+        color: #93c5fd;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .design-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .view-design-btn {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: #ffffff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .view-design-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+      }
+
+      .design-status {
+        font-size: 10px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        background: rgba(34, 197, 94, 0.1);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+      }
+
+      .tech-stack {
+        margin: 60px 0;
+        text-align: center;
+      }
+
+      .tech-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 24px;
+        color: #ffffff;
+      }
+
+      .tech-grid {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .tech-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 12px 20px;
+        border-radius: 12px;
+        color: #cbd5e1;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .tech-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #ffffff;
+      }
+
+      .back-button {
+        position: fixed;
+        top: 24px;
+        left: 24px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 12px 20px;
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .back-button:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 768px) {
+        .designs-grid {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+
+        .design-card {
+          margin: 0 16px;
+        }
+
+        .container {
+          padding: 0 16px;
+        }
+
+        .back-button {
+          top: 16px;
+          left: 16px;
+          padding: 10px 16px;
+          font-size: 14px;
+        }
+      }
+
+      /* Preview 특별 스타일들 */
+      .strava-preview {
+        background: linear-gradient(135deg, #f7f7f7, #e5e5e5);
+      }
+
+      .strava-preview .preview-content {
+        color: #666;
+      }
+
+      .palantir-preview {
+        background: linear-gradient(135deg, #0a0a0b, #121214);
+      }
+
+      .minority-preview {
+        background: linear-gradient(135deg, #000408, #001122);
+        position: relative;
+      }
+
+      .minority-preview::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+            circle at 30% 70%,
+            rgba(0, 150, 255, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 70% 30%,
+            rgba(0, 255, 150, 0.1) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="index.html" class="back-button">← 포트폴리오로 돌아가기</a>
+
+    <section class="hero-section">
+      <div class="container">
+        <h1 class="hero-title">Seoul LivePop</h1>
+        <p class="hero-subtitle">서울시 생활인구 웹 매핑 어플리케이션</p>
+        <p class="hero-description">
+          실시간 생활인구 데이터 시각화, AI 기반 예측 분석, 그리고 사용자
+          친화적인 인터페이스를 제공하는 차세대 도시 인텔리전스 플랫폼의 다양한
+          디자인 접근법을 제시합니다.
+        </p>
+      </div>
+    </section>
+
+    <div class="container">
+      <section class="project-info">
+        <div class="info-card">
+          <div class="info-number">4</div>
+          <div class="info-label">Design Variations</div>
+        </div>
+        <div class="info-card">
+          <div class="info-number">4</div>
+          <div class="info-label">UI Frameworks</div>
+        </div>
+        <div class="info-card">
+          <div class="info-number">100%</div>
+          <div class="info-label">Responsive</div>
+        </div>
+        <div class="info-card">
+          <div class="info-number">Real-time</div>
+          <div class="info-label">Data Updates</div>
+        </div>
+      </section>
+
+      <section class="designs-section">
+        <h2 class="section-title">Design Showcase</h2>
+
+        <div class="designs-grid">
+          <!-- Minority Report Holographic -->
+          <div
+            class="design-card"
+            onclick="openDesign('./livpop_designs_comp/design2.html')"
+          >
+            <div class="design-preview minority-preview">
+              <div class="preview-content">
+                <div class="preview-icon">🔮</div>
+                <div class="preview-text">Minority Report Holographic</div>
+              </div>
+            </div>
+            <div class="design-content">
+              <h3 class="design-title">
+                Minority Report Holographic Interface
+              </h3>
+              <div class="design-style">Futuristic • Transparent</div>
+              <p class="design-description">
+                마이너리티 리포트 영화에서 영감을 받은 홀로그래픽 인터페이스.
+                투명한 패널들과 지도 배경으로 미래적 사용자 경험을 제공합니다.
+              </p>
+              <div class="design-features">
+                <span class="feature-tag">Holographic</span>
+                <span class="feature-tag">Transparent UI</span>
+                <span class="feature-tag">Map-centric</span>
+                <span class="feature-tag">Sci-fi Inspired</span>
+              </div>
+              <div class="design-footer">
+                <a href="#" class="view-design-btn">View Design →</a>
+                <span class="design-status">Ready</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Strava-inspired Clean Design -->
+          <div
+            class="design-card"
+            onclick="openDesign('./livpop_designs_comp/design4.html')"
+          >
+            <div class="design-preview strava-preview">
+              <div class="preview-content">
+                <div class="preview-icon">🏃</div>
+                <div class="preview-text">Strava-inspired Clean</div>
+              </div>
+            </div>
+            <div class="design-content">
+              <h3 class="design-title">Strava-inspired Clean Interface</h3>
+              <div class="design-style">Minimal • Clean</div>
+              <p class="design-description">
+                스트라바의 깔끔하고 미니멀한 디자인 철학을 적용. 데이터에 집중할
+                수 있도록 불필요한 요소를 제거한 인터페이스입니다.
+              </p>
+              <div class="design-features">
+                <span class="feature-tag">Minimal Design</span>
+                <span class="feature-tag">Data-focused</span>
+                <span class="feature-tag">Clean Typography</span>
+                <span class="feature-tag">Professional</span>
+              </div>
+              <div class="design-footer">
+                <a href="#" class="view-design-btn">View Design →</a>
+                <span class="design-status">Ready</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Palantir-style Intelligence Platform -->
+          <div
+            class="design-card"
+            onclick="openDesign('./livpop_designs_comp/design3.html')"
+          >
+            <div class="design-preview palantir-preview">
+              <div class="preview-content">
+                <div class="preview-icon">🛡️</div>
+                <div class="preview-text">Palantir Intelligence</div>
+              </div>
+            </div>
+            <div class="design-content">
+              <h3 class="design-title">Palantir-style Intelligence Platform</h3>
+              <div class="design-style">Dark • Professional</div>
+              <p class="design-description">
+                팔란티어의 데이터 인텔리전스 플랫폼에서 영감을 받은 전문가급
+                인터페이스. 어두운 테마와 네온 효과로 미래적 느낌을 연출합니다.
+              </p>
+              <div class="design-features">
+                <span class="feature-tag">Dark Theme</span>
+                <span class="feature-tag">Intelligence UI</span>
+                <span class="feature-tag">Data Dense</span>
+                <span class="feature-tag">Professional</span>
+              </div>
+              <div class="design-footer">
+                <a href="#" class="view-design-btn">View Design →</a>
+                <span class="design-status">Ready</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modern Glassmorphism Design -->
+          <div
+            class="design-card"
+            onclick="openDesign('./livpop_designs_comp/design1.html')"
+          >
+            <div class="design-preview">
+              <div class="preview-content">
+                <div class="preview-icon">🎨</div>
+                <div class="preview-text">Modern Glassmorphism</div>
+              </div>
+            </div>
+            <div class="design-content">
+              <h3 class="design-title">Modern Glassmorphism Interface</h3>
+              <div class="design-style">Modern • Colorful</div>
+              <p class="design-description">
+                최신 디자인 트렌드를 반영한 글래스모피즘 스타일의 인터페이스.
+                그라데이션과 반투명 효과로 세련된 사용자 경험을 제공합니다.
+              </p>
+              <div class="design-features">
+                <span class="feature-tag">Glassmorphism</span>
+                <span class="feature-tag">Gradients</span>
+                <span class="feature-tag">Interactive</span>
+                <span class="feature-tag">Mobile Responsive</span>
+              </div>
+              <div class="design-footer">
+                <a href="#" class="view-design-btn">View Design →</a>
+                <span class="design-status">Ready</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tech-stack">
+        <h3 class="tech-title">Technology Stack</h3>
+        <div class="tech-grid">
+          <div class="tech-item">HTML5 & CSS3</div>
+          <div class="tech-item">JavaScript ES6+</div>
+          <div class="tech-item">CSS Grid & Flexbox</div>
+          <div class="tech-item">Responsive Design</div>
+          <div class="tech-item">CSS Animations</div>
+          <div class="tech-item">Backdrop Filter</div>
+          <div class="tech-item">SVG Graphics</div>
+          <div class="tech-item">Web APIs</div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      function openDesign(filename) {
+        // 실제 파일명은 개별 디자인 파일들이 생성되면 업데이트
+        const designUrls = {
+          './livpop_designs_comp/design1.html':
+            './livpop_designs_comp/design1.html',
+          './livpop_designs_comp/design2.html':
+            './livpop_designs_comp/design2.html',
+          './livpop_designs_comp/design3.html':
+            './livpop_designs_comp/design3.html',
+          './livpop_designs_comp/design4.html':
+            './livpop_designs_comp/design4.html',
+        };
+
+        if (designUrls[filename]) {
+          window.open(designUrls[filename], '_blank');
+        } else {
+          // 임시로 현재 만든 디자인을 보여줌
+          alert(
+            `${filename} 디자인을 새 창에서 열 예정입니다.\n\n현재는 개발 중인 프로토타입입니다.`
+          );
+        }
+      }
+
+      // 카드 호버 효과 개선
+      document.querySelectorAll('.design-card').forEach((card) => {
+        card.addEventListener('mouseenter', function () {
+          this.style.transform = 'translateY(-12px) scale(1.02)';
+        });
+
+        card.addEventListener('mouseleave', function () {
+          this.style.transform = 'translateY(0) scale(1)';
+        });
+      });
+
+      // 부드러운 스크롤 애니메이션
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px',
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, observerOptions);
+
+      // 애니메이션 초기 설정
+      document.querySelectorAll('.design-card, .info-card').forEach((el) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        observer.observe(el);
+      });
+
+      // 초기 로드 시 일부 요소 즉시 표시
+      setTimeout(() => {
+        document.querySelectorAll('.info-card').forEach((el, index) => {
+          setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+          }, index * 100);
+        });
+      }, 500);
+    </script>
+  </body>
+</html>

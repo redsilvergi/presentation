@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seoul LivePop - 서울시 생활인구 분석 플랫폼</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          sans-serif;
+        background: #f7f7f7;
+        color: #2d2d2d;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .app-container {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        grid-template-rows: 60px 1fr;
+        height: 100vh;
+      }
+
+      .header {
+        grid-column: 1 / -1;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        border-bottom: 1px solid #e5e5e5;
+        z-index: 1000;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        background: #fc4c02;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .logo h1 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #2d2d2d;
+      }
+
+      .header-controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .time-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: #f5f5f5;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #666;
+      }
+
+      .live-dot {
+        width: 6px;
+        height: 6px;
+        background: #fc4c02;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      .sidebar {
+        background: white;
+        border-right: 1px solid #e5e5e5;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .sidebar-section {
+        border-bottom: 1px solid #e5e5e5;
+      }
+
+      .section-header {
+        padding: 16px 24px;
+        background: #fafafa;
+        font-weight: 600;
+        font-size: 14px;
+        color: #2d2d2d;
+        border-bottom: 1px solid #e5e5e5;
+      }
+
+      .stats-grid {
+        padding: 20px 24px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2d2d2d;
+        margin-bottom: 4px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #888;
+        font-weight: 500;
+      }
+
+      .controls-section {
+        padding: 20px 24px;
+      }
+
+      .control-group {
+        margin-bottom: 20px;
+      }
+
+      .control-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #2d2d2d;
+        margin-bottom: 8px;
+      }
+
+      .control-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .control-btn {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #d5d5d5;
+        background: white;
+        color: #666;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .control-btn.active {
+        background: #2d2d2d;
+        color: white;
+        border-color: #2d2d2d;
+      }
+
+      .control-btn:hover:not(.active) {
+        border-color: #999;
+        color: #2d2d2d;
+      }
+
+      .search-box {
+        position: relative;
+        margin-bottom: 16px;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 10px 16px;
+        border: 1px solid #d5d5d5;
+        border-radius: 6px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s ease;
+      }
+
+      .search-input:focus {
+        border-color: #fc4c02;
+      }
+
+      .chat-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .chat-messages {
+        flex: 1;
+        padding: 16px 24px;
+        overflow-y: auto;
+        background: #fafafa;
+      }
+
+      .message {
+        margin-bottom: 12px;
+        padding: 10px 14px;
+        border-radius: 16px;
+        max-width: 85%;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .message.user {
+        background: #2d2d2d;
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+      }
+
+      .message.ai {
+        background: white;
+        color: #2d2d2d;
+        border: 1px solid #e5e5e5;
+        border-bottom-left-radius: 4px;
+      }
+
+      .chat-input-container {
+        padding: 16px 24px;
+        background: white;
+        border-top: 1px solid #e5e5e5;
+      }
+
+      .chat-input {
+        display: flex;
+        gap: 8px;
+      }
+
+      .chat-input input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1px solid #d5d5d5;
+        border-radius: 20px;
+        outline: none;
+        font-size: 13px;
+        transition: border-color 0.2s ease;
+      }
+
+      .chat-input input:focus {
+        border-color: #fc4c02;
+      }
+
+      .send-btn {
+        padding: 10px 16px;
+        background: #fc4c02;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 13px;
+        transition: background 0.2s ease;
+      }
+
+      .send-btn:hover {
+        background: #e23d00;
+      }
+
+      .main-content {
+        background: #f7f7f7;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .map-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        background: linear-gradient(45deg, #f0f0f0, #e8e8e8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .map-placeholder {
+        width: calc(100% - 40px);
+        height: calc(100% - 40px);
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e5e5e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        font-size: 16px;
+        font-weight: 500;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .map-overlay {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        pointer-events: none;
+      }
+
+      .map-overlay > * {
+        pointer-events: auto;
+      }
+
+      .legend {
+        background: white;
+        border: 1px solid #e5e5e5;
+        border-radius: 6px;
+        padding: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .legend-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: #2d2d2d;
+        margin-bottom: 8px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+        font-size: 11px;
+        color: #666;
+      }
+
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+      }
+
+      .district-visualization {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+
+      .district-area {
+        position: absolute;
+        border-radius: 4px;
+        border: 1px solid rgba(45, 45, 45, 0.1);
+        animation: fadeIn 2s ease-in-out;
+      }
+
+      .area-1 {
+        width: 80px;
+        height: 60px;
+        top: 30%;
+        left: 35%;
+        background: rgba(252, 76, 2, 0.8);
+      }
+
+      .area-2 {
+        width: 60px;
+        height: 40px;
+        top: 45%;
+        left: 55%;
+        background: rgba(252, 76, 2, 0.5);
+      }
+
+      .area-3 {
+        width: 70px;
+        height: 50px;
+        top: 60%;
+        left: 25%;
+        background: rgba(252, 76, 2, 0.3);
+      }
+
+      .area-4 {
+        width: 50px;
+        height: 35px;
+        top: 25%;
+        left: 60%;
+        background: rgba(252, 76, 2, 0.6);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .floating-info {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(45, 45, 45, 0.9);
+        color: white;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        line-height: 1.4;
+        backdrop-filter: blur(10px);
+      }
+
+      .typing-indicator {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        color: #666;
+        font-style: italic;
+        padding: 8px 14px;
+        font-size: 12px;
+      }
+
+      .typing-dots {
+        display: flex;
+        gap: 2px;
+      }
+
+      .typing-dot {
+        width: 3px;
+        height: 3px;
+        background: #666;
+        border-radius: 50%;
+        animation: typing 1.4s infinite;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes typing {
+        0%,
+        60%,
+        100% {
+          transform: translateY(0);
+        }
+        30% {
+          transform: translateY(-6px);
+        }
+      }
+
+      .zoom-controls {
+        position: absolute;
+        top: 80px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        background: white;
+        border: 1px solid #e5e5e5;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .zoom-btn {
+        width: 32px;
+        height: 32px;
+        background: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: #666;
+        transition: background 0.2s ease;
+      }
+
+      .zoom-btn:hover {
+        background: #f5f5f5;
+      }
+
+      .zoom-btn:not(:last-child) {
+        border-bottom: 1px solid #e5e5e5;
+      }
+
+      @media (max-width: 1200px) {
+        .app-container {
+          grid-template-columns: 1fr;
+          grid-template-rows: 60px 300px 1fr;
+        }
+
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid #e5e5e5;
+          flex-direction: row;
+          overflow-x: auto;
+        }
+
+        .sidebar-section {
+          min-width: 250px;
+          border-right: 1px solid #e5e5e5;
+          border-bottom: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="header">
+        <div class="logo">
+          <div class="logo-icon">SP</div>
+          <h1>Seoul LivePop</h1>
+        </div>
+        <div class="header-controls">
+          <div class="time-indicator">
+            <div class="live-dot"></div>
+            <span>실시간 업데이트 14:30</span>
+          </div>
+        </div>
+      </header>
+
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <div class="section-header">실시간 통계</div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-number">2.4M</div>
+              <div class="stat-label">총 생활인구</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">+5.2%</div>
+              <div class="stat-label">전일 대비</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">1,247</div>
+              <div class="stat-label">최고밀도</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">89%</div>
+              <div class="stat-label">예측 정확도</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-header">분석 설정</div>
+          <div class="controls-section">
+            <div class="search-box">
+              <input
+                type="text"
+                class="search-input"
+                placeholder="구역 검색 (ex. 강남구)"
+              />
+            </div>
+
+            <div class="control-group">
+              <div class="control-label">표시 모드</div>
+              <div class="control-buttons">
+                <button class="control-btn active">실시간</button>
+                <button class="control-btn">예측</button>
+                <button class="control-btn">비교</button>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label">시간대</div>
+              <div class="control-buttons">
+                <button class="control-btn">오전</button>
+                <button class="control-btn active">오후</button>
+                <button class="control-btn">저녁</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section chat-container">
+          <div class="section-header">AI 분석 어시스턴트</div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="message ai">
+              서울시 생활인구 데이터에 대해 궁금한 점이 있으시면 언제든
+              물어보세요.
+            </div>
+            <div class="message user">
+              강남구 오후 2시 생활인구가 평소보다 많은 이유는?
+            </div>
+            <div class="message ai">
+              강남구 오후 2시 생활인구 증가 요인:<br /><br />
+              • 점심시간 이후 업무 관련 이동<br />
+              • 코엑스 전시회 개최<br />
+              • 날씨 호조로 인한 야외활동<br /><br />
+              평소 대비 15.3% 증가 상황입니다.
+            </div>
+          </div>
+          <div class="typing-indicator" id="typingIndicator">
+            <span>분석 중</span>
+            <div class="typing-dots">
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+            </div>
+          </div>
+          <div class="chat-input-container">
+            <div class="chat-input">
+              <input
+                type="text"
+                placeholder="질문을 입력하세요..."
+                id="chatInput"
+              />
+              <button class="send-btn" onclick="sendMessage()">전송</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="map-container">
+          <div class="map-placeholder">
+            <div class="district-visualization">
+              <div class="district-area area-1"></div>
+              <div class="district-area area-2"></div>
+              <div class="district-area area-3"></div>
+              <div class="district-area area-4"></div>
+            </div>
+            서울시 집계구별 생활인구 분포
+          </div>
+          <div class="map-overlay">
+            <div></div>
+            <div class="legend">
+              <div class="legend-title">인구밀도</div>
+              <div class="legend-item">
+                <div
+                  class="legend-color"
+                  style="background: rgba(252, 76, 2, 0.8)"
+                ></div>
+                <span>높음 (1000+)</span>
+              </div>
+              <div class="legend-item">
+                <div
+                  class="legend-color"
+                  style="background: rgba(252, 76, 2, 0.5)"
+                ></div>
+                <span>보통 (500-1000)</span>
+              </div>
+              <div class="legend-item">
+                <div
+                  class="legend-color"
+                  style="background: rgba(252, 76, 2, 0.3)"
+                ></div>
+                <span>낮음 (~500)</span>
+              </div>
+            </div>
+          </div>
+          <div class="zoom-controls">
+            <button class="zoom-btn">+</button>
+            <button class="zoom-btn">−</button>
+          </div>
+          <div class="floating-info">
+            선택된 구역: 강남구 집계구 #2847<br />
+            현재 생활인구: 1,247명<br />
+            예측 증감률: +12.4%
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const messages = document.getElementById('chatMessages');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        if (input.value.trim() === '') return;
+
+        const userMessage = document.createElement('div');
+        userMessage.className = 'message user';
+        userMessage.textContent = input.value;
+        messages.appendChild(userMessage);
+
+        typingIndicator.style.display = 'flex';
+        messages.scrollTop = messages.scrollHeight;
+
+        setTimeout(() => {
+          typingIndicator.style.display = 'none';
+
+          const aiMessage = document.createElement('div');
+          aiMessage.className = 'message ai';
+          aiMessage.innerHTML =
+            '"' +
+            input.value +
+            '"에 대해 분석했습니다.<br><br>현재 서울시 생활인구 데이터를 기반으로 답변드렸습니다. 추가 질문이 있으시면 언제든 말씀해 주세요.';
+          messages.appendChild(aiMessage);
+
+          messages.scrollTop = messages.scrollHeight;
+        }, 1500);
+
+        input.value = '';
+      }
+
+      document
+        .getElementById('chatInput')
+        .addEventListener('keypress', function (e) {
+          if (e.key === 'Enter') {
+            sendMessage();
+          }
+        });
+
+      // Control button interactions
+      document.querySelectorAll('.control-btn').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          const group = this.parentElement;
+          group.querySelector('.control-btn.active').classList.remove('active');
+          this.classList.add('active');
+        });
+      });
+
+      // Real-time data simulation
+      setInterval(() => {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach((stat) => {
+          if (stat.textContent.includes('M')) {
+            const num = parseFloat(stat.textContent);
+            stat.textContent =
+              (num + (Math.random() - 0.5) * 0.1).toFixed(1) + 'M';
+          } else if (stat.textContent.includes('%')) {
+            const num = parseFloat(stat.textContent);
+            stat.textContent =
+              (num + (Math.random() - 0.5) * 0.2).toFixed(1) + '%';
+          }
+        });
+      }, 5000);
+    </script>
+  </body>
+</html>
